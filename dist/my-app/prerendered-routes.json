@@ -1,0 +1,15 @@
+{
+  "routes": {
+    "/ExamTest": {},
+    "/ExamTest/auth": {},
+    "/ExamTest/auth/create-password": {},
+    "/ExamTest/auth/forgot-password": {},
+    "/ExamTest/auth/login": {},
+    "/ExamTest/auth/register": {},
+    "/ExamTest/auth/verify-email": {},
+    "/ExamTest/auth/verify-otp": {},
+    "/ExamTest/dashboard": {},
+    "/ExamTest/dashboard/account": {},
+    "/ExamTest/dashboard/diplomas": {}
+  }
+}
