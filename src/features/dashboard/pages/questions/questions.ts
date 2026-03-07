@@ -1,11 +1,11 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule, ActivatedRoute, Router } from '@angular/router';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header';
-import { MainBtn } from '../../../../shared/components/main-btn/main-btn';
+import { RouterModule, ActivatedRoute } from '@angular/router';
+import { BreadcrumbComponent } from '../../../../app/shared/breadcrumb/breadcrumb';
+import { PageHeaderComponent } from '../../../../app/shared/page-header/page-header';
+import { MainBtn } from '../../../../app/shared/main-btn/main-btn';
 
-interface Question {
+export interface Question {
   id: number;
   text: string;
   options: string[];
@@ -18,19 +18,19 @@ interface Question {
   standalone: true,
   imports: [CommonModule, RouterModule, BreadcrumbComponent, PageHeaderComponent, MainBtn],
   templateUrl: './questions.html',
-  styleUrl: './questions.scss'
 })
 export class QuestionsPage implements OnInit, OnDestroy {
   breadcrumbs = [
     { label: 'Home', path: '/dashboard' },
     { label: 'Exams', path: '/dashboard/diplomas/1/exams' },
-    { label: 'CSS Quiz', path: '/dashboard/diplomas/1/exams/1' },
+    { label: 'CSS Quiz' },
     { label: 'Questions' }
   ];
 
   headerIcon = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
     <circle cx="12" cy="12" r="10"/>
-    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+    <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/>
+    <line x1="12" y1="17" x2="12.01" y2="17"/>
   </svg>`;
 
   questions: Question[] = Array.from({ length: 25 }, (_, i) => ({
@@ -38,57 +38,63 @@ export class QuestionsPage implements OnInit, OnDestroy {
     text: 'What does CSS stand for?',
     options: ['Computer Style Sheets', 'Creative Style Sheets', 'Cascading Style Sheets', 'Colorful Style Sheets'],
     correctIndex: 2,
-    selectedIndex: null
+    selectedIndex: null,
   }));
 
   currentIndex = signal(0);
-  timeLeft = signal(61); // seconds per question
+  timeLeftSec = signal(61);
   showResults = signal(false);
-  private timer: any;
+  private timerRef: any;
 
   currentQuestion = computed(() => this.questions[this.currentIndex()]);
-  progress = computed(() => ((this.currentIndex() + 1) / this.questions.length) * 100);
-  timerDeg = computed(() => (this.timeLeft() / 61) * 360);
-  timerColor = computed(() => this.timeLeft() > 20 ? 'var(--primary)' : 'var(--danger)');
+  progressPct = computed(() => ((this.currentIndex() + 1) / this.questions.length) * 100);
+  timerDeg = computed(() => (this.timeLeftSec() / 61) * 360);
 
-  get correctCount() { return this.questions.filter(q => q.selectedIndex === q.correctIndex).length; }
-  get incorrectCount() { return this.questions.filter(q => q.selectedIndex !== null && q.selectedIndex !== q.correctIndex).length; }
+  get timerDisplay(): string {
+    const m = Math.floor(this.timeLeftSec() / 60);
+    const s = this.timeLeftSec() % 60;
+    return `${m}:${s.toString().padStart(2, '0')}`;
+  }
 
-  constructor(private router: Router) {}
+  get timerStroke(): string {
+    return this.timeLeftSec() > 15 ? '#2563eb' : '#ef4444';
+  }
+
+  // SVG donut values (r=22, circumference=138.23)
+  get correctCount(): number { return this.questions.filter(q => q.selectedIndex === q.correctIndex).length; }
+  get incorrectCount(): number { return this.questions.filter(q => q.selectedIndex !== null && q.selectedIndex !== q.correctIndex).length; }
+  get correctDash(): string { return `${(this.correctCount / this.questions.length) * 138.23} 138.23`; }
+  get incorrectOffset(): number { return -((this.correctCount / this.questions.length) * 138.23); }
+  get incorrectDash(): string { return `${(this.incorrectCount / this.questions.length) * 138.23} 138.23`; }
 
   ngOnInit() { this.startTimer(); }
-  ngOnDestroy() { clearInterval(this.timer); }
+  ngOnDestroy() { clearInterval(this.timerRef); }
 
   startTimer() {
-    clearInterval(this.timer);
-    this.timeLeft.set(61);
-    this.timer = setInterval(() => {
-      this.timeLeft.update(t => {
-        if (t <= 1) { this.nextQuestion(); return 61; }
+    clearInterval(this.timerRef);
+    this.timeLeftSec.set(61);
+    this.timerRef = setInterval(() => {
+      this.timeLeftSec.update(t => {
+        if (t <= 1) { this.advance(); return 61; }
         return t - 1;
       });
     }, 1000);
   }
 
-  selectOption(index: number) {
-    this.questions[this.currentIndex()].selectedIndex = index;
-  }
-
-  nextQuestion() {
+  advance() {
     if (this.currentIndex() < this.questions.length - 1) {
       this.currentIndex.update(i => i + 1);
       this.startTimer();
     } else {
       this.showResults.set(true);
-      clearInterval(this.timer);
+      clearInterval(this.timerRef);
     }
   }
 
-  prevQuestion() {
-    if (this.currentIndex() > 0) {
-      this.currentIndex.update(i => i - 1);
-      this.startTimer();
-    }
+  select(i: number) { this.questions[this.currentIndex()].selectedIndex = i; }
+  next() { this.advance(); }
+  prev() {
+    if (this.currentIndex() > 0) { this.currentIndex.update(i => i - 1); this.startTimer(); }
   }
 
   restart() {
@@ -96,12 +102,6 @@ export class QuestionsPage implements OnInit, OnDestroy {
     this.currentIndex.set(0);
     this.showResults.set(false);
     this.startTimer();
-  }
-
-  get timerDisplay() {
-    const m = Math.floor(this.timeLeft() / 60);
-    const s = this.timeLeft() % 60;
-    return `${m}:${s.toString().padStart(2, '0')}`;
   }
 }
 

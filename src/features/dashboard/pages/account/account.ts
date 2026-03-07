@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BreadcrumbComponent } from '../../../../shared/components/breadcrumb/breadcrumb';
-import { PageHeaderComponent } from '../../../../shared/components/page-header/page-header';
-import { MainBtn } from '../../../../shared/components/main-btn/main-btn';
-import { ModalComponent } from '../../../../shared/components/modal/modal';
+import { BreadcrumbComponent } from '../../../../app/shared/breadcrumb/breadcrumb';
+import { PageHeaderComponent } from '../../../../app/shared/page-header/page-header';
+import { MainBtn } from '../../../../app/shared/main-btn/main-btn';
+import { ModalComponent } from '../../../../app/shared/modal/modal';
 
 type Tab = 'profile' | 'password';
 
@@ -13,7 +13,6 @@ type Tab = 'profile' | 'password';
   standalone: true,
   imports: [CommonModule, FormsModule, BreadcrumbComponent, PageHeaderComponent, MainBtn, ModalComponent],
   templateUrl: './account.html',
-  styleUrl: './account.scss'
 })
 export class AccountPage {
   breadcrumbs = [
@@ -27,52 +26,37 @@ export class AccountPage {
 
   activeTab = signal<Tab>('profile');
   deleteModalOpen = signal(false);
-  passwordError = signal('');
-  passwordSuccess = signal(false);
-  savingProfile = signal(false);
+  pwError = signal('');
+  pwSuccess = signal(false);
+  saving = signal(false);
+  showCurrent = signal(false);
+  showNew = signal(false);
+  showConfirm = signal(false);
 
-  // Password visibility
-  showCurrentPw = signal(false);
-  showNewPw = signal(false);
-  showConfirmPw = signal(false);
-
-  profile = {
-    firstName: 'Ahmed',
-    lastName: 'Abdullah',
-    username: 'user123',
-    email: 'user@example.com',
-    phone: '1012345678',
-    countryCode: 'EG(+20)'
-  };
-
-  passwords = {
-    current: '',
-    new: '',
-    confirm: ''
-  };
-
+  profile = { firstName: 'Ahmed', lastName: 'Abdullah', username: 'user123', email: 'user@example.com', phone: '1012345678', countryCode: 'EG(+20)' };
+  passwords = { current: '', newPw: '', confirm: '' };
   countryCodes = ['EG(+20)', 'US(+1)', 'UK(+44)', 'AE(+971)', 'SA(+966)'];
 
-  setTab(tab: Tab) { this.activeTab.set(tab); }
+  setTab(t: Tab) { this.activeTab.set(t); }
 
   saveProfile() {
-    this.savingProfile.set(true);
-    setTimeout(() => this.savingProfile.set(false), 1500);
+    this.saving.set(true);
+    setTimeout(() => this.saving.set(false), 1500);
   }
 
   updatePassword() {
-    if (!this.passwords.current || !this.passwords.new || !this.passwords.confirm) {
-      this.passwordError.set('Please fill all fields.');
+    if (!this.passwords.current || !this.passwords.newPw || !this.passwords.confirm) {
+      this.pwError.set('Please fill all fields.');
       return;
     }
-    if (this.passwords.new !== this.passwords.confirm) {
-      this.passwordError.set('Passwords do not match.');
+    if (this.passwords.newPw !== this.passwords.confirm) {
+      this.pwError.set('Passwords do not match.');
       return;
     }
-    this.passwordError.set('');
-    this.passwordSuccess.set(true);
-    setTimeout(() => this.passwordSuccess.set(false), 3000);
-    this.passwords = { current: '', new: '', confirm: '' };
+    this.pwError.set('');
+    this.pwSuccess.set(true);
+    this.passwords = { current: '', newPw: '', confirm: '' };
+    setTimeout(() => this.pwSuccess.set(false), 3500);
   }
 
   confirmDelete() {
@@ -80,19 +64,6 @@ export class AccountPage {
     console.log('Account deleted');
   }
 
-  logout() {
-    console.log('Logged out');
-  }
-
-  eyeIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-    <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
-    <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
-    <line x1="1" y1="1" x2="23" y2="23"/>
-  </svg>`;
-
-  eyeOffIcon = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
-    <circle cx="12" cy="12" r="3"/>
-  </svg>`;
+  logout() { console.log('Logout'); }
 }
 
