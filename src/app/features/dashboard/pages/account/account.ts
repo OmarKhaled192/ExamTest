@@ -13,6 +13,7 @@ type Tab = 'profile' | 'password';
   standalone: true,
   imports: [CommonModule, FormsModule, BreadcrumbComponent, PageHeaderComponent, ModalComponent],
   templateUrl: './account.html',
+  styleUrls: ['./account.scss']
 })
 export class AccountPage {
   breadcrumbs = [
