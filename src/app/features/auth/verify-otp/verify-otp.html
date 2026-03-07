@@ -7,15 +7,8 @@
   </p>
 
   <div class="otp-row">
-    <input
-      *ngFor="let _ of [0,1,2,3,4,5]; let i = index"
-      #otpInputs
-      type="text" maxlength="1"
-      class="otp-box"
-      [class.otp-box--active]="otp[i] !== ''"
-      [(ngModel)]="otp[i]"
-      (keyup)="onKey($event, i)"
-    />
+    <input *ngFor="let _ of [0,1,2,3,4,5]; let i = index" #otpInputs type="text" maxlength="1" class="otp-box"
+      [class.otp-box--active]="otp[i] !== ''" [(ngModel)]="otp[i]" (keyup)="onKey($event, i)" />
   </div>
 
   <p class="resend-text" *ngIf="countdown > 0">You can request another code in: {{ countdown }}s</p>
@@ -24,5 +17,5 @@
   </p>
 
   <main-btn color="primary" (click)="onVerify()">Verify Code</main-btn>
-  <question-link question="Already have an account?" linkLabel="Login" link="/login"></question-link>
+  <question-link question="Already have an account?" linkLabel="Login" link="/auth/login"></question-link>
 </div>
