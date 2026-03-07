@@ -90,7 +90,7 @@
           <label>New Password</label>
           <div class="pw-input">
             <input [type]="showNewPw() ? 'text' : 'password'" [(ngModel)]="passwords.new" placeholder="••••••••">
-            <button class="pw-toggle" (click)="showNewPw.update(v => !v)"
+            <button class="pw-toggle" (click)="showNewPw.set(!showNewPw())"
               [innerHTML]="showNewPw() ? eyeOffIcon : eyeIcon"></button>
           </div>
         </div>
@@ -100,7 +100,7 @@
           <div class="pw-input">
             <input [type]="showConfirmPw() ? 'text' : 'password'" [(ngModel)]="passwords.confirm"
               placeholder="••••••••">
-            <button class="pw-toggle" (click)="showConfirmPw.update(v => !v)"
+            <button class="pw-toggle" (click)="showConfirmPw.set(!showConfirmPw())"
               [innerHTML]="showConfirmPw() ? eyeOffIcon : eyeIcon"></button>
           </div>
         </div>

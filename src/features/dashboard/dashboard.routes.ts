@@ -3,7 +3,7 @@ import { DashboardLayoutComponent } from './dashboard-layout';
 
 export const DASHBOARD_ROUTES: Routes = [
   {
-    path: '',
+    path: 'dashboard',
     component: DashboardLayoutComponent,
     children: [
       { path: '', redirectTo: 'diplomas', pathMatch: 'full' },
