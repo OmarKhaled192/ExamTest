@@ -1,0 +1,40 @@
+.form-card {
+  width: 100%;
+  max-width: 75%;
+  margin: auto;
+}
+
+.back-btn {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-size: 16px;
+  margin-bottom: 32px;
+}
+
+.form-title {
+  font-weight: 700;
+  font-size: 28px;
+  color: #1e293b;
+  margin: 0 0 20px;
+}
+
+.info-text {
+  font-size: 14px;
+  color: #374151;
+  margin-bottom: 16px;
+  font-family: var(--font-geist-mono, monospace);
+}
+
+.email-link {
+  color: #2563eb;
+  font-family: var(--font-geist-mono, monospace);
+}
+
+.hint-text {
+  font-size: 13px;
+  color: #9ca3af;
+  font-family: var(--font-geist-mono, monospace);
+}

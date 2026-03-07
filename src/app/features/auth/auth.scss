@@ -5,6 +5,94 @@
   font-family: var(--font-inter, 'Inter', sans-serif);
 }
 
+/* ── RESPONSIVE ── */
+
+/* Medium screens (tablets) */
+@media (max-width: 1024px) {
+  .auth-wrapper {
+    grid-template-columns: 1fr;
+    /* Stack panels vertically */
+  }
+
+  .left-panel {
+    display: flex;
+    /* Keep visible if desired */
+    min-height: 300px;
+
+    &::before {
+      width: 250px;
+      height: 250px;
+      top: -80px;
+      right: -50px;
+    }
+
+    &::after {
+      width: 200px;
+      height: 200px;
+      bottom: -60px;
+      left: 20px;
+    }
+  }
+
+  .left-inner {
+    gap: 32px;
+    max-width: 100%;
+    padding: 20px;
+  }
+
+  .hero-title {
+    font-size: 24px;
+    line-height: 1.3;
+  }
+
+  .all-articles {
+    gap: 24px;
+  }
+
+  .right-panel {
+    padding: 32px 24px;
+  }
+}
+
+/* Small screens (mobiles) */
+@media (max-width: 640px) {
+  .left-panel {
+    display: none;
+    /* Optional: hide completely on mobile */
+  }
+
+  .right-panel {
+    padding: 24px 16px;
+  }
+
+  .hero-title {
+    font-size: 20px;
+    line-height: 1.25;
+  }
+
+  .all-articles {
+    gap: 16px;
+  }
+
+  .form-card {
+    max-width: 100%;
+  }
+
+  .field-input {
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+
+  .login-btn {
+    padding: 12px;
+    font-size: 14px;
+  }
+
+  .signup-text {
+    font-size: 12px;
+  }
+}
+
 /* ── LEFT PANEL ── */
 .left-panel {
   background: linear-gradient(135deg, #dbeafe 0%, #eff6ff 40%, #e0f2fe 100%);
@@ -49,10 +137,6 @@
   z-index: 1;
 }
 
-.logo-area {
-  // logo sits top-left naturally
-}
-
 .hero-content {
   display: flex;
   flex-direction: column;
@@ -81,6 +165,14 @@
   align-items: center;
   justify-content: center;
   padding: 48px 32px;
+
+  .form-card-wrapper {
+    width: 100%;
+
+    .form-card {
+      width: 100%;
+    }
+  }
 }
 
 .form-card {

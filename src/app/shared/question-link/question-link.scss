@@ -1,0 +1,15 @@
+.question-link {
+  &__text {
+    text-align: center;
+    font-size: 13.5px;
+    color: #6b7280;
+    margin-top: 24px;
+    font-family: var(--font-geist-mono, monospace);
+  }
+  &__anchor {
+    color: #2563eb;
+    cursor: pointer;
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}

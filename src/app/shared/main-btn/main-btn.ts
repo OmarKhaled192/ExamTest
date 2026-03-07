@@ -1,19 +1,16 @@
+import { Component, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Component, CUSTOM_ELEMENTS_SCHEMA, Input } from '@angular/core';
 
 @Component({
   selector: 'main-btn',
+  standalone: true,
   imports: [CommonModule],
   templateUrl: './main-btn.html',
-  styleUrl: './main-btn.scss',
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  styleUrl: './main-btn.scss'
 })
 export class MainBtn {
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
-
   @Input() color: 'primary' | 'danger' | 'success' = 'primary';
-
-  @Input() icon: string | null = null;
-
+  @Input() icon?: string;
   @Input() iconPosition: 'left' | 'right' = 'left';
 }

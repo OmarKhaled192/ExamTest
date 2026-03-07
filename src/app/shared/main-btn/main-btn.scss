@@ -1,0 +1,22 @@
+.main-btn {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  border-radius: 8px;
+  padding: 13px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+  font-family: var(--font-inter, 'Inter', sans-serif);
+
+  &--primary { background: #2563eb; &:hover { background: #1d4ed8; } }
+  &--danger  { background: #ef4444; &:hover { background: #dc2626; } }
+  &--success { background: #22c55e; &:hover { background: #16a34a; } }
+
+  &__icon { display: flex; align-items: center; }
+}
