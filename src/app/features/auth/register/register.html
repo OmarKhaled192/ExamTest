@@ -21,15 +21,23 @@
     <label class="field-label">Email</label>
     <input [(ngModel)]="email" type="email" placeholder="user@example.com" class="field-input" />
   </div>
-
   <div class="field-group">
     <label class="field-label">Phone</label>
-    <div class="phone-wrapper">
-      <span class="phone-prefix">������ EG(+20) ◇</span>
-      <input [(ngModel)]="phone" type="tel" placeholder="1012345678" class="field-input phone-input" />
+    <div
+      class="phone-wrapper flex border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
+
+     <select [(ngModel)]="selectedCountry"
+        class="bg-white text-gray-800 px-3 py-2 outline-none appearance-none border-none focus:ring-0">
+          <option value="+20">EG (+20)</option>
+          <option value="+1">US (+1)</option>
+          <option value="+44">UK (+44)</option>
+          <option value="+91">IN (+91)</option>
+      </select>
+      <!-- Phone input -->
+      <input [(ngModel)]="phone" type="tel" placeholder="1012345678"
+        class="flex-1 field-input border-none rounded-none focus:ring-0 focus:border-blue-500" />
     </div>
   </div>
-
   <div class="field-group">
     <label class="field-label">Password</label>
     <div class="password-wrapper">

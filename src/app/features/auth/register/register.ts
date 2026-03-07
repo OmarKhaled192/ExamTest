@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, signal, Signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
@@ -15,5 +15,6 @@ export class Register {
   firstName = ''; lastName = ''; username = ''; email = '';
   phone = ''; password = ''; confirmPassword = '';
   showPassword = false; showConfirm = false;
+  selectedCountry = '+20';  
   onRegister() { console.log('Register submitted'); }
 }
