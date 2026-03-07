@@ -15,6 +15,7 @@ interface Diploma {
   standalone: true,
   imports: [CommonModule, RouterModule, BreadcrumbComponent, PageHeaderComponent],
   templateUrl: './diplomas.html',
+  styleUrls: ['./diplomas.scss']
 })
 export class DiplomasPage {
   breadcrumbs = [{ label: 'Home', path: '/dashboard' }];

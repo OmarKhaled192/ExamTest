@@ -4,21 +4,15 @@
   <app-page-header title="Diplomas" [icon]="headerIcon"></app-page-header>
 
   <!-- 3-column image grid -->
-  <div class="grid grid-cols-3 gap-4">
-    <a
-      *ngFor="let diploma of diplomas"
-      [routerLink]="['/dashboard/diplomas', diploma.id, 'exams']"
-      class="relative block aspect-[4/3] rounded-lg overflow-hidden cursor-pointer group shadow-sm hover:shadow-lg transition-shadow duration-300"
-    >
-      <img
-        [src]="diploma.image"
-        [alt]="diploma.title"
-        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-      >
+  <div class="grid diploma-card grid-cols-3 gap-4">
+    <a *ngFor="let diploma of diplomas" [routerLink]="['/dashboard/diplomas', diploma.id, 'exams']"
+      class="relative block aspect-[4/3]  overflow-hidden cursor-pointer group shadow-sm hover:shadow-lg transition-shadow duration-300">
+      <img [src]="diploma.image" [alt]="diploma.title"
+        class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
       <!-- Blue gradient overlay at bottom like in screenshots -->
       <div class="absolute inset-0 bg-gradient-to-t from-blue-700/80 via-blue-600/20 to-transparent"></div>
       <!-- Title -->
-      <div class="absolute bottom-0 left-0 right-0 p-4">
+      <div class="diploma-title absolute bottom-0 left-0 right-0 p-4">
         <span class="font-mono font-bold text-white text-base leading-tight">{{ diploma.title }}</span>
       </div>
     </a>
@@ -27,9 +21,9 @@
   <!-- Scroll hint -->
   <div class="flex flex-col items-center gap-1 mt-6 text-gray-400 text-xs font-mono">
     <span>Scroll to view more</span>
-    <svg class="animate-bounce" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-      <polyline points="6,9 12,15 18,9"/>
+    <svg class="animate-bounce" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+      stroke-width="2">
+      <polyline points="6,9 12,15 18,9" />
     </svg>
   </div>
 </div>
-
