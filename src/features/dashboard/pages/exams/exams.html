@@ -1,0 +1,29 @@
+<app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+<div class="exams-page">
+  <app-page-header
+    [title]="diplomaTitle + ' Exams'"
+    [icon]="headerIcon"
+    backPath="/dashboard/diplomas"
+  ></app-page-header>
+
+  <div class="exams-list">
+    <a
+      *ngFor="let exam of exams"
+      [routerLink]="['/dashboard/diplomas', diplomaId, 'exams', exam.id, 'questions']"
+      class="exam-card"
+    >
+      <div class="exam-card__info">
+        <h3 class="exam-card__title">{{ exam.title }}</h3>
+        <span class="exam-card__count">{{ exam.questionCount }} Questions</span>
+      </div>
+      <div class="exam-card__meta">
+        <span class="exam-card__duration" [innerHTML]="clockIcon"></span>
+        <span class="exam-card__duration-text">Duration: {{ exam.duration }} minutes</span>
+      </div>
+    </a>
+
+    <p class="exams-end">End of list</p>
+  </div>
+</div>
+

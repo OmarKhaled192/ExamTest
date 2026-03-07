@@ -1,0 +1,107 @@
+<app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+<div class="questions-page">
+  <app-page-header title="[CSS Quiz] Questions" [icon]="headerIcon"
+    backPath="/dashboard/diplomas/1/exams"></app-page-header>
+
+  <!-- Quiz Mode -->
+  <div class="quiz" *ngIf="!showResults()">
+    <div class="quiz__meta">
+      <span class="quiz__label">Frontend Development - CSS Quiz</span>
+      <span class="quiz__counter">Question <strong>{{ currentIndex() + 1 }}</strong> of {{ questions.length }}</span>
+    </div>
+
+    <div class="quiz__progress">
+      <div class="quiz__progress-bar" [style.width]="progress() + '%'"></div>
+    </div>
+
+    <h2 class="quiz__question">{{ currentQuestion().text }}</h2>
+
+    <div class="quiz__options">
+      <button *ngFor="let option of currentQuestion().options; let i = index" class="quiz__option"
+        [class.quiz__option--selected]="currentQuestion().selectedIndex === i" (click)="selectOption(i)">
+        <span class="quiz__option-radio">
+          <span class="quiz__option-dot" *ngIf="currentQuestion().selectedIndex === i"></span>
+        </span>
+        {{ option }}
+      </button>
+    </div>
+
+    <div class="quiz__footer">
+      <main-btn color="outline" (click)="prevQuestion()" [disabled]="currentIndex() === 0">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15,18 9,12 15,6" />
+        </svg>
+        Previous
+      </main-btn>
+
+      <div class="quiz__timer" [style.--timer-deg]="timerDeg() + 'deg'" [style.--timer-color]="timerColor()">
+        <span class="quiz__timer-text">{{ timerDisplay }}</span>
+      </div>
+
+      <main-btn color="primary" (click)="nextQuestion()">
+        Next
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9,18 15,12 9,6" />
+        </svg>
+      </main-btn>
+    </div>
+  </div>
+
+  <!-- Results Mode -->
+  <div class="results" *ngIf="showResults()">
+    <div class="results__content">
+      <!-- Donut Chart -->
+      <div class="results__chart-wrap">
+        <svg class="results__donut" viewBox="0 0 120 120">
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#e2e8f0" stroke-width="12" />
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#22c55e" stroke-width="12"
+            [attr.stroke-dasharray]="(correctCount / questions.length) * 314.16 + ' 314.16'" stroke-dashoffset="78.54"
+            stroke-linecap="round" />
+          <circle cx="60" cy="60" r="50" fill="none" stroke="#ef4444" stroke-width="12"
+            [attr.stroke-dasharray]="(incorrectCount / questions.length) * 314.16 + ' 314.16'"
+            [attr.stroke-dashoffset]="78.54 - (correctCount / questions.length) * 314.16" stroke-linecap="round" />
+        </svg>
+        <div class="results__legend">
+          <span class="results__legend-item results__legend-item--correct">Correct: {{ correctCount }}</span>
+          <span class="results__legend-item results__legend-item--incorrect">Incorrect: {{ incorrectCount }}</span>
+        </div>
+      </div>
+
+      <!-- Answers Review -->
+      <div class="results__answers">
+        <h3 class="results__label">Results:</h3>
+        <div class="results__list">
+          <div *ngFor="let q of questions" class="results__item">
+            <h4 class="results__q-text">{{ q.text }}</h4>
+            <div class="results__options">
+              <div *ngFor="let opt of q.options; let i = index" class="results__opt"
+                [class.results__opt--wrong]="q.selectedIndex === i && i !== q.correctIndex"
+                [class.results__opt--correct]="i === q.correctIndex && q.selectedIndex !== null">
+                <span class="results__opt-radio" [class.results__opt-radio--filled]="q.selectedIndex === i"></span>
+                {{ opt }}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="results__footer">
+      <main-btn color="outline" (click)="restart()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1,4 1,10 7,10" />
+          <path d="M3.51 15a9 9 0 1 0 .49-3.51" />
+        </svg>
+        Restart
+      </main-btn>
+      <main-btn color="primary" routerLink="/dashboard/diplomas">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 13s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z" />
+          <circle cx="12" cy="13" r="3" />
+        </svg>
+        Explore
+      </main-btn>
+    </div>
+  </div>
+</div>

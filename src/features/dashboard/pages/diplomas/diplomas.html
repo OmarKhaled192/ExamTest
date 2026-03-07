@@ -1,0 +1,27 @@
+<app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+<div class="diplomas-page">
+  <app-page-header title="Diplomas" [icon]="headerIcon"></app-page-header>
+
+  <div class="diplomas-grid">
+    <a
+      *ngFor="let diploma of diplomas"
+      [routerLink]="['/dashboard/diplomas', diploma.id, 'exams']"
+      class="diploma-card"
+    >
+      <div class="diploma-card__img-wrap">
+        <img [src]="diploma.image" [alt]="diploma.title" class="diploma-card__img">
+        <div class="diploma-card__overlay" [style.background]="'linear-gradient(to top, ' + diploma.color + 'dd, transparent)'"></div>
+      </div>
+      <div class="diploma-card__title">{{ diploma.title }}</div>
+    </a>
+  </div>
+
+  <p class="diplomas-scroll-hint">
+    <span>Scroll to view more</span>
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="6,9 12,15 18,9"/>
+    </svg>
+  </p>
+</div>
+
