@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
 import { ForgotLink } from '../../../shared/forgot-link/forgot-link';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-login',
@@ -18,6 +19,7 @@ export class Login {
   showPassword = false;
   globalError = '';
   errors: { username?: string; password?: string } = {};
+  constructor(private router: Router) { }
 
   onLogin() {
     this.errors = {};
@@ -27,5 +29,10 @@ export class Login {
     if (this.errors.username || this.errors.password) {
       this.globalError = 'Something went wrong';
     }
+
+    this.router.navigate(['/dashboard/diplomas']);
+
   }
+
+
 }
