@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
-import { BreadcrumbComponent } from '../../../../app/shared/breadcrumb/breadcrumb';
-import { PageHeaderComponent } from '../../../../app/shared/page-header/page-header';
+import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header';
 
 interface Diploma {
   id: number;

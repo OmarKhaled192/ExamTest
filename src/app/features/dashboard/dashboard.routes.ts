@@ -1,29 +1,33 @@
 import { Routes } from '@angular/router';
 import { DashboardLayoutComponent } from './dashboard-layout';
+import { DiplomasPage } from './pages/diplomas/diplomas';
+import { ExamsPage } from './pages/exams/exams';
+import { QuestionsPage } from './pages/questions/questions';
+import { AccountPage } from './pages/account/account';
 
 export const DASHBOARD_ROUTES: Routes = [
   {
-    path: '',
+    path: 'dashboard',
     component: DashboardLayoutComponent,
     children: [
       { path: '', redirectTo: 'diplomas', pathMatch: 'full' },
+
       {
         path: 'diplomas',
-        loadComponent: () => import('./pages/diplomas/diplomas').then(m => m.DiplomasPage)
+        component: DiplomasPage
       },
       {
         path: 'diplomas/:diplomaId/exams',
-        loadComponent: () => import('./pages/exams/exams').then(m => m.ExamsPage)
+        component: ExamsPage
       },
       {
         path: 'diplomas/:diplomaId/exams/:examId/questions',
-        loadComponent: () => import('./pages/questions/questions').then(m => m.QuestionsPage)
+        component: QuestionsPage
       },
       {
         path: 'account',
-        loadComponent: () => import('./pages/account/account').then(m => m.AccountPage)
+        component: AccountPage
       }
     ]
   }
 ];
-

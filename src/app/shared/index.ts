@@ -1,8 +1,8 @@
-export { MainBtn } from './main-btn/main-btn';
-export { BreadcrumbComponent } from './breadcrumb/breadcrumb';
-export { PageHeaderComponent } from './page-header/page-header';
-export { SidebarComponent } from './sidebar/sidebar';
-export { ModalComponent } from './modal/modal';
-export type { BreadcrumbItem } from './breadcrumb/breadcrumb';
-export type { NavItem } from './sidebar/sidebar';
+export { MainBtn } from './components/main-btn/main-btn';
+export { BreadcrumbComponent } from './components/breadcrumb/breadcrumb';
+export { PageHeaderComponent } from './components/page-header/page-header';
+export { SidebarComponent } from './components/sidebar/sidebar';
+export { ModalComponent } from './components/modal/modal';
+export type { BreadcrumbItem } from './components/breadcrumb/breadcrumb';
+export type { NavItem } from './components/sidebar/sidebar';
 

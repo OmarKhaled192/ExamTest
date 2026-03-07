@@ -1,10 +1,10 @@
 import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { BreadcrumbComponent } from '../../../../app/shared/breadcrumb/breadcrumb';
-import { PageHeaderComponent } from '../../../../app/shared/page-header/page-header';
-import { MainBtn } from '../../../../app/shared/main-btn/main-btn';
-import { ModalComponent } from '../../../../app/shared/modal/modal';
+import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header';
+import { MainBtn } from '../../../../shared/main-btn/main-btn';
+import { ModalComponent } from '../../../../shared/modal/modal';
 
 type Tab = 'profile' | 'password';
 

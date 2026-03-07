@@ -1,9 +1,9 @@
 import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
-import { BreadcrumbComponent } from '../../../../app/shared/breadcrumb/breadcrumb';
-import { PageHeaderComponent } from '../../../../app/shared/page-header/page-header';
-import { MainBtn } from '../../../../app/shared/main-btn/main-btn';
+import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
+import { PageHeaderComponent } from '../../../../shared/page-header/page-header';
+import { MainBtn } from '../../../../shared/main-btn/main-btn';
 
 export interface Question {
   id: number;
