@@ -1,15 +1,9 @@
-<button
-  [type]="type"
-  class="main-btn"
-  [class.main-btn--primary]="color === 'primary'"
-  [class.main-btn--danger]="color === 'danger'"
-  [class.main-btn--success]="color === 'success'"
->
-  <ng-container *ngIf="icon && iconPosition === 'left'">
-    <span class="main-btn__icon" [innerHTML]="icon"></span>
-  </ng-container>
-  <ng-content></ng-content>
-  <ng-container *ngIf="icon && iconPosition === 'right'">
-    <span class="main-btn__icon" [innerHTML]="icon"></span>
+<button [type]="type" [class]="classes" [disabled]="disabled || loading">
+  <span *ngIf="loading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+  <ng-container *ngIf="!loading">
+    <span *ngIf="icon && iconPosition === 'left'" class="flex items-center" [innerHTML]="icon"></span>
+    <ng-content></ng-content>
+    <span *ngIf="icon && iconPosition === 'right'" class="flex items-center" [innerHTML]="icon"></span>
   </ng-container>
 </button>
+

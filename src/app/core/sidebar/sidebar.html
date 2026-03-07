@@ -1,0 +1,96 @@
+<aside
+  class="relative flex flex-col bg-[#eef2fb] border-r border-gray-200 min-h-screen transition-all duration-300 flex-shrink-0"
+  [style.width]="collapsed() ? '72px' : '280px'" (click)="closeUserMenu()">
+  <!-- Toggle arrow button -->
+  <button (click)="$event.stopPropagation(); toggleSidebar()"
+    class="absolute -right-4 top-6 z-10 w-8 h-8 flex items-center justify-center bg-white border border-gray-200 rounded-full text-gray-400 hover:text-blue-600 hover:border-blue-300 hover:shadow-md transition-all duration-200 shadow-sm"
+    [title]="collapsed() ? 'Expand' : 'Collapse'">
+    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+      class="transition-transform duration-300" [style.transform]="collapsed() ? 'rotate(180deg)' : 'rotate(0deg)'">
+      <polyline points="15,18 9,12 15,6" />
+    </svg>
+  </button>
+
+  <!-- Logo -->
+  <div class="flex items-center = px-4 pt-5 pb-7 overflow-hidden">
+    <div *ngIf="!collapsed()" class="flex flex-col gap-2 overflow-hidden">
+      <span class="font-black text-gray-900 text-lg tracking-tight leading-none font-mono">
+        <img src="./icons/elevate.svg" alt="elevate logo">
+
+      </span>
+
+      <span>
+        <main-title [withPadding]="false"></main-title>
+      </span>
+
+    </div>
+  </div>
+
+
+  <!-- Nav items -->
+  <nav class="flex flex-col gap-1 px-2 flex-1">
+    <a *ngFor="let item of navItems" [routerLink]="item.path"
+      routerLinkActive="active-tab !bg-blue-600/10 !text-blue-600 font-semibold"
+      class="flex items-center gap-3 px-3 py-2.5 rounded-lg text-gray-500 text-sm font-mono transition-all duration-150 hover:bg-blue-600/5 hover:text-blue-600 overflow-hidden whitespace-nowrap"
+      [title]="collapsed() ? item.label : ''">
+      <span class="flex-shrink-0 flex items-center" [innerHTML]="item.icon"></span>
+      <span *ngIf="!collapsed()">{{ item.label }}</span>
+    </a>
+  </nav>
+
+  <!-- User section -->
+  <div class="relative border-t border-gray-200 p-2 mt-auto">
+    <div
+      class="flex items-center gap-2.5 p-2 rounded-lg cursor-pointer hover:bg-blue-600/5 transition-colors duration-150 overflow-hidden"
+      (click)="$event.stopPropagation(); toggleUserMenu($event)">
+      <!-- Avatar -->
+      <div class="w-9 h-9 rounded-full bg-gray-300 flex-shrink-0 overflow-hidden flex items-center justify-center">
+        <img *ngIf="user.avatar" [src]="user.avatar" [alt]="user.firstName" class="w-full h-full object-cover">
+        <svg *ngIf="!user.avatar" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#888"
+          stroke-width="1.8">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+      </div>
+
+      <div *ngIf="!collapsed()" class="flex-1 min-w-0">
+        <div class="text-blue-600 text-sm font-semibold font-mono truncate">{{ user.firstName }}</div>
+        <div class="text-gray-400 text-[11px] font-mono truncate">{{ user.email }}</div>
+      </div>
+
+      <!-- Dots menu button -->
+      <button *ngIf="!collapsed()" class="flex-shrink-0 text-gray-400 hover:text-gray-600 p-1"
+        (click)="$event.stopPropagation(); toggleUserMenu($event)">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
+          <circle cx="12" cy="5" r="1.5" />
+          <circle cx="12" cy="12" r="1.5" />
+          <circle cx="12" cy="19" r="1.5" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Dropdown: Account + Logout — matches Dropdown.png exactly -->
+    <div *ngIf="userMenuOpen() && !collapsed()"
+      class="absolute bottom-full left-2 right-2 mb-1 bg-white border border-gray-200 rounded-xl shadow-xl overflow-hidden z-20">
+      <a [routerLink]="'/dashboard/account'"
+        class="flex items-center gap-2.5 px-4 py-3 text-sm font-mono text-gray-700 hover:bg-gray-50 transition-colors duration-150"
+        (click)="closeUserMenu()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        Account
+      </a>
+      <button
+        class="flex items-center gap-2.5 px-4 py-3 text-sm font-mono text-red-500 hover:bg-red-50 transition-colors duration-150 w-full text-left"
+        (click)="logout(); closeUserMenu()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16,17 21,12 16,7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        Logout
+      </button>
+    </div>
+  </div>
+</aside>
