@@ -1,0 +1,30 @@
+<app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+<div class="px-6 pb-8">
+  <app-page-header
+    [title]="diplomaTitle + ' Exams'"
+    [icon]="headerIcon"
+    backPath="/dashboard/diplomas"
+  ></app-page-header>
+
+  <!-- Exam list -->
+  <div class="flex flex-col gap-3">
+    <a
+      *ngFor="let exam of exams"
+      [routerLink]="['/dashboard/diplomas', diplomaId, 'exams', exam.id, 'questions']"
+      class="flex items-center justify-between px-6 py-5 bg-white border border-gray-100 rounded-xl hover:border-blue-200 hover:shadow-md transition-all duration-200 group cursor-pointer"
+    >
+      <div class="flex flex-col gap-1">
+        <span class="font-mono font-semibold text-blue-600 text-base group-hover:text-blue-700">{{ exam.title }}</span>
+        <span class="font-mono text-gray-400 text-sm">{{ exam.questionCount }} Questions</span>
+      </div>
+      <div class="flex items-center gap-2 text-gray-400 font-mono text-sm">
+        <span class="flex items-center" [innerHTML]="clockIcon"></span>
+        <span>Duration: {{ exam.durationMinutes }} minutes</span>
+      </div>
+    </a>
+
+    <p class="text-center font-mono text-gray-400 text-sm py-4">End of list</p>
+  </div>
+</div>
+

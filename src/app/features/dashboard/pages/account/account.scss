@@ -1,0 +1,8 @@
+::ng-deep .tab-btn {
+
+  svg {
+    &>path {
+      stroke: blue !important;
+    }
+  }
+}

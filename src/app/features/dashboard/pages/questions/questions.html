@@ -1,0 +1,206 @@
+<app-breadcrumb [items]="breadcrumbs"></app-breadcrumb>
+
+<div class="px-6 pb-8">
+  <app-page-header title="[CSS Quiz] Questions" [icon]="headerIcon" backPath="/dashboard/diplomas/1/exams"></app-page-header>
+
+  <!-- ═══════════════════════════════════════════════
+       QUIZ MODE
+  ════════════════════════════════════════════════ -->
+  <div *ngIf="!showResults()" class="bg-white rounded-xl border border-gray-100 p-6">
+
+    <!-- Meta row: label + question counter -->
+    <div class="flex items-center justify-between mb-2 font-mono text-sm text-gray-400">
+      <span>Frontend Development - CSS Quiz</span>
+      <span>Question <strong class="text-gray-800">{{ currentIndex() + 1 }}</strong> of {{ questions.length }}</span>
+    </div>
+
+    <!-- Progress bar -->
+    <div class="h-1.5 bg-gray-100 rounded-full mb-7 overflow-hidden">
+      <div
+        class="h-full bg-blue-600 rounded-full transition-all duration-300"
+        [style.width]="progressPct() + '%'"
+      ></div>
+    </div>
+
+    <!-- Question text -->
+    <h2 class="font-mono font-bold text-blue-600 text-xl mb-6">{{ currentQuestion().text }}</h2>
+
+    <!-- Options -->
+    <div class="flex flex-col gap-3 mb-10">
+      <button
+        *ngFor="let opt of currentQuestion().options; let i = index"
+        (click)="select(i)"
+        class="flex items-center gap-3 px-5 py-4 rounded-lg border font-mono text-sm text-left transition-all duration-150"
+        [class]="currentQuestion().selectedIndex === i
+          ? 'border-blue-400 bg-blue-50 text-blue-700 font-medium'
+          : 'border-transparent bg-gray-50 text-gray-700 hover:border-blue-300 hover:bg-blue-50'"
+      >
+        <!-- Radio circle -->
+        <span
+          class="flex-shrink-0 w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors duration-150"
+          [class]="currentQuestion().selectedIndex === i ? 'border-blue-600' : 'border-gray-300'"
+        >
+          <span
+            *ngIf="currentQuestion().selectedIndex === i"
+            class="w-2.5 h-2.5 rounded-full bg-blue-600"
+          ></span>
+        </span>
+        {{ opt }}
+      </button>
+    </div>
+
+    <!-- Footer: Previous | Timer | Next -->
+    <div class="flex items-center justify-between gap-4">
+      <!-- Previous button -->
+      <button
+        (click)="prev()"
+        [disabled]="currentIndex() === 0"
+        class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-gray-100 text-gray-500 font-mono text-sm font-medium hover:bg-gray-200 disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-150"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="15,18 9,12 15,6"/>
+        </svg>
+        Previous
+      </button>
+
+      <!-- Circular countdown timer -->
+      <div class="flex-shrink-0 w-14 h-14 relative">
+        <svg class="w-full h-full -rotate-90" viewBox="0 0 52 52">
+          <circle cx="26" cy="26" r="22" fill="none" stroke="#e5e7eb" stroke-width="4"/>
+          <circle
+            cx="26" cy="26" r="22"
+            fill="none"
+            [attr.stroke]="timerStroke"
+            stroke-width="4"
+            stroke-linecap="round"
+            [attr.stroke-dasharray]="(timeLeftSec() / 61) * 138.23 + ' 138.23'"
+            class="transition-all duration-1000"
+          />
+        </svg>
+        <span class="absolute inset-0 flex items-center justify-center font-mono font-bold text-xs text-gray-800">
+          {{ timerDisplay }}
+        </span>
+      </div>
+
+      <!-- Next button -->
+      <button
+        (click)="next()"
+        class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 text-white font-mono text-sm font-medium hover:bg-blue-700 transition-colors duration-150"
+      >
+        Next
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <polyline points="9,18 15,12 9,6"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════
+       RESULTS MODE (matches Answers.png exactly)
+  ════════════════════════════════════════════════ -->
+  <div *ngIf="showResults()" class="bg-white rounded-xl border border-gray-100 overflow-hidden">
+
+    <!-- Meta row -->
+    <div class="flex items-center justify-between px-6 pt-6 mb-2 font-mono text-sm text-gray-400">
+      <span>Frontend Development - CSS Quiz</span>
+      <span>Question <strong class="text-gray-800">{{ questions.length }}</strong> of {{ questions.length }}</span>
+    </div>
+    <!-- Full progress bar -->
+    <div class="h-1.5 bg-blue-600 mx-6 rounded-full mb-6"></div>
+
+    <div class="px-6">
+      <h2 class="font-mono font-bold text-blue-600 text-xl mb-6">Results:</h2>
+
+      <div class="flex gap-8">
+        <!-- Left: Donut + legend -->
+        <div class="flex flex-col items-center gap-4 flex-shrink-0 w-44">
+          <!-- SVG donut chart -->
+          <svg class="w-36 h-36 -rotate-90" viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="22" fill="none" stroke="#e5e7eb" stroke-width="6"/>
+            <!-- Correct (green) -->
+            <circle
+              cx="26" cy="26" r="22"
+              fill="none" stroke="#22c55e" stroke-width="6" stroke-linecap="butt"
+              [attr.stroke-dasharray]="correctDash"
+            />
+            <!-- Incorrect (red) -->
+            <circle
+              cx="26" cy="26" r="22"
+              fill="none" stroke="#ef4444" stroke-width="6" stroke-linecap="butt"
+              [attr.stroke-dasharray]="incorrectDash"
+              [attr.stroke-dashoffset]="incorrectOffset"
+            />
+          </svg>
+          <!-- Legend -->
+          <div class="flex flex-col gap-2 font-mono text-sm">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-sm bg-green-500 flex-shrink-0"></span>
+              <span class="text-gray-700 font-medium">Correct: {{ correctCount }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-3 rounded-sm bg-red-500 flex-shrink-0"></span>
+              <span class="text-gray-700 font-medium">Incorrect: {{ incorrectCount }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: Answers review list -->
+        <div class="flex-1 overflow-y-auto max-h-96 pr-2">
+          <div *ngFor="let q of questions" class="mb-5">
+            <h4 class="font-mono font-semibold text-blue-600 text-sm mb-2">{{ q.text }}</h4>
+            <div class="flex flex-col gap-1.5">
+              <ng-container *ngFor="let opt of q.options; let i = index">
+                <!-- Only show selected (wrong) and correct answers like in screenshot -->
+                <div
+                  *ngIf="q.selectedIndex === i || i === q.correctIndex"
+                  class="flex items-center gap-2.5 px-4 py-3 rounded-lg font-mono text-sm"
+                  [class]="q.selectedIndex === i && i !== q.correctIndex
+                    ? 'bg-red-50 text-red-600'
+                    : 'bg-green-50 text-green-700'"
+                >
+                  <!-- Radio indicator -->
+                  <span
+                    class="w-4 h-4 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+                    [class]="q.selectedIndex === i
+                      ? (i !== q.correctIndex ? 'border-red-500 bg-red-500' : 'border-green-600')
+                      : 'border-green-500'"
+                  >
+                    <span
+                      *ngIf="q.selectedIndex === i && i !== q.correctIndex"
+                      class="w-1.5 h-1.5 rounded-full bg-white"
+                    ></span>
+                  </span>
+                  {{ opt }}
+                </div>
+              </ng-container>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer actions -->
+    <div class="flex gap-3 px-6 py-5 mt-4 border-t border-gray-100">
+      <button
+        (click)="restart()"
+        class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-gray-100 text-gray-600 font-mono text-sm font-medium hover:bg-gray-200 transition-colors duration-150"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="1,4 1,10 7,10"/>
+          <path d="M3.51 15a9 9 0 1 0 .49-3.51"/>
+        </svg>
+        Restart
+      </button>
+      <button
+        [routerLink]="'/dashboard/diplomas'"
+        class="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg bg-blue-600 text-white font-mono text-sm font-medium hover:bg-blue-700 transition-colors duration-150"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M2 13s4-8 10-8 10 8 10 8-4 8-10 8-10-8-10-8z"/><circle cx="12" cy="13" r="3"/>
+        </svg>
+        Explore
+      </button>
+    </div>
+  </div>
+</div>
+
