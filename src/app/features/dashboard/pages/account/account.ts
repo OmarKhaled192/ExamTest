@@ -11,7 +11,7 @@ type Tab = 'profile' | 'password';
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, BreadcrumbComponent, PageHeaderComponent, MainBtn, ModalComponent],
+  imports: [CommonModule, FormsModule, BreadcrumbComponent, PageHeaderComponent, ModalComponent],
   templateUrl: './account.html',
 })
 export class AccountPage {
