@@ -1,0 +1,16 @@
+.forgot-link {
+  &__row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: -8px;
+    margin-bottom: 28px;
+  }
+  &__anchor {
+    font-size: 13px;
+    color: #2563eb;
+    cursor: pointer;
+    font-family: var(--font-geist-mono, monospace);
+    text-decoration: none;
+    &:hover { text-decoration: underline; }
+  }
+}

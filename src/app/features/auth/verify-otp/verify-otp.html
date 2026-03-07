@@ -1,0 +1,21 @@
+<div class="form-card">
+  <button class="back-btn" (click)="goBack()">←</button>
+  <h2 class="form-title">Verify OTP</h2>
+  <p class="info-text">
+    Please enter the 6-digits code we have sent to: {{ email }}.
+    <a class="edit-link" (click)="onEdit()">Edit</a>
+  </p>
+
+  <div class="otp-row">
+    <input *ngFor="let _ of [0,1,2,3,4,5]; let i = index" #otpInputs type="text" maxlength="1" class="otp-box"
+      [class.otp-box--active]="otp[i] !== ''" [(ngModel)]="otp[i]" (keyup)="onKey($event, i)" />
+  </div>
+
+  <p class="resend-text" *ngIf="countdown > 0">You can request another code in: {{ countdown }}s</p>
+  <p class="resend-text" *ngIf="countdown === 0">
+    Didn't receive the code? <a class="edit-link" (click)="resend()">Resend</a>
+  </p>
+
+  <main-btn color="primary" (click)="onVerify()">Verify Code</main-btn>
+  <question-link question="Already have an account?" linkLabel="Login" link="/auth/login"></question-link>
+</div>
