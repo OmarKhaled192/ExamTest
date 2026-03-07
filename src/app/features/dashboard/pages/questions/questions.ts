@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header';
-import { MainBtn } from '../../../../shared/main-btn/main-btn';
 
 export interface Question {
   id: number;
@@ -16,7 +15,7 @@ export interface Question {
 @Component({
   selector: 'app-questions',
   standalone: true,
-  imports: [CommonModule, RouterModule, BreadcrumbComponent, PageHeaderComponent, MainBtn],
+  imports: [CommonModule, RouterModule, BreadcrumbComponent, PageHeaderComponent],
   templateUrl: './questions.html',
 })
 export class QuestionsPage implements OnInit, OnDestroy {

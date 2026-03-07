@@ -1,4 +1,4 @@
-.sidebar {
+:host ::ng-deep .sidebar {
   position: relative;
   width: var(--sidebar-width);
   min-height: 100vh;
@@ -12,7 +12,18 @@
   &--collapsed {
     width: var(--sidebar-collapsed-width);
 
-    .sidebar__toggle { right: -16px; }
+    .sidebar__toggle {
+      right: -16px;
+    }
+  }
+
+
+  .active-tab {
+    svg {
+      &>path {
+        stroke: red !important;
+      }
+    }
   }
 
   // Toggle
@@ -34,13 +45,15 @@
     transition: all var(--transition);
     box-shadow: var(--shadow-sm);
 
-    svg { transition: transform var(--transition); }
+    svg {
+      transition: transform var(--transition);
+    }
 
     &:hover {
       background: var(--primary);
       border-color: var(--primary);
       color: white;
-      box-shadow: 0 0 0 4px rgba(37,99,235,0.15);
+      box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15);
     }
   }
 
@@ -109,17 +122,19 @@
     white-space: nowrap;
 
     &:hover {
-      background: rgba(37,99,235,0.06);
+      background: rgba(37, 99, 235, 0.06);
       color: var(--primary);
     }
 
     &--active {
-      background: rgba(37,99,235,0.1);
+      background: rgba(37, 99, 235, 0.1);
       color: var(--primary);
       font-weight: 600;
 
       .sidebar__nav-icon {
-        ::ng-deep svg { stroke: var(--primary); }
+        ::ng-deep svg {
+          stroke: var(--primary);
+        }
       }
     }
   }
@@ -128,7 +143,10 @@
     display: flex;
     align-items: center;
     flex-shrink: 0;
-    ::ng-deep svg { stroke: currentColor; }
+
+    ::ng-deep svg {
+      stroke: currentColor;
+    }
   }
 
   &__nav-label {
@@ -154,7 +172,9 @@
     transition: background var(--transition);
     overflow: hidden;
 
-    &:hover { background: rgba(37,99,235,0.06); }
+    &:hover {
+      background: rgba(37, 99, 235, 0.06);
+    }
   }
 
   &__avatar {
@@ -171,7 +191,11 @@
     flex-shrink: 0;
     overflow: hidden;
 
-    img { width: 100%; height: 100%; object-fit: cover; }
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
   }
 
   &__user-info {
@@ -203,7 +227,10 @@
     flex-shrink: 0;
     color: var(--text-muted);
     transition: color var(--transition);
-    &:hover { color: var(--text-primary); }
+
+    &:hover {
+      color: var(--text-primary);
+    }
   }
 
   &__user-dropdown {
@@ -236,15 +263,50 @@
     border: none;
     font-family: inherit;
 
-    &:hover { background: var(--bg); }
+    &:hover {
+      background: var(--bg);
+    }
 
     &--danger {
       color: var(--danger);
-      &:hover { background: var(--danger-light); }
+
+      &:hover {
+        background: var(--danger-light);
+      }
     }
   }
 }
 
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-@keyframes slideUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
 
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+
+::ng-deep .active-tab {
+
+  background-color: blue !important;
+
+  svg {
+    &>path {
+      stroke: blue !important;
+    }
+  }
+}

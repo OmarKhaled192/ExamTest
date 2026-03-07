@@ -89,7 +89,6 @@
             class="flex border border-gray-200 rounded-lg overflow-hidden focus-within:border-blue-400 transition-colors duration-150">
             <div class="flex items-center gap-1.5 px-3 border-r border-gray-200 bg-white flex-shrink-0">
               <!-- EG flag emoji approximation -->
-              <span class="text-base">������</span>
               <select [(ngModel)]="profile.countryCode"
                 class="font-mono text-sm text-gray-700 bg-transparent focus:outline-none pr-1 appearance-none cursor-pointer">
                 <option *ngFor="let c of countryCodes" [value]="c">{{ c }}</option>
