@@ -1,38 +1,59 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
 import { ForgotLink } from '../../../shared/forgot-link/forgot-link';
-import { Router } from '@angular/router';
+import { AuthService } from '../../../../../dist/auth';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [CommonModule, FormsModule, MainBtn, QuestionLink, ForgotLink],
+  imports: [CommonModule, ReactiveFormsModule, MainBtn, QuestionLink, ForgotLink],
   templateUrl: './login.html',
-  styleUrl: './login.scss'
+  styleUrls: ['./login.scss']
 })
 export class Login {
-  username = '';
-  password = '';
+  private router = inject(Router);
+  private authService = inject(AuthService);
+
   showPassword = false;
-  globalError = '';
-  errors: { username?: string; password?: string } = {};
-  constructor(private router: Router) { }
+  globalError: string = '';
 
-  onLogin() {
-    this.errors = {};
-    this.globalError = '';
-    if (!this.username) this.errors.username = 'Your username is required';
-    if (!this.password) this.errors.password = 'Your password is required';
-    if (this.errors.username || this.errors.password) {
-      this.globalError = 'Something went wrong';
-    }
+  // Reactive form without FormBuilder
+  loginForm: FormGroup<any> = new FormGroup({
+    username: new FormControl('', Validators.required),
+    password: new FormControl('', Validators.required)
+  });
 
-    this.router.navigate(['/dashboard/diplomas']);
-
+  // Getter to access form controls in template
+  get f() {
+    return this.loginForm.controls;
   }
 
+  onLogin() {
+    this.globalError = '';
+    this.loginForm.markAllAsTouched();
 
+    if (this.loginForm.invalid) {
+      this.globalError = 'Please fix the errors before submitting.';
+      return;
+    }
+
+    this.authService.login(this.loginForm.value).subscribe({
+      next: (res: any) => {
+        console.log('Login success:', res);
+        if (res.status == 401) {
+          this.globalError = res?.error?.message || 'Something went wrong. Please try again.';
+        } else {
+          this.router.navigate(['/dashboard/diplomas']);
+        }
+      },
+      error: (err) => {
+        console.error(err);
+        this.globalError = err?.error?.message || 'Something went wrong. Please try again.';
+      }
+    });
+  }
 }
