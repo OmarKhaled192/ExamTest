@@ -1,77 +1,130 @@
+<!-- Step indicator (hidden on step 1) -->
 <div class="form-card">
+
+  <!-- Stepper (shown from step 2 onwards) -->
+  <div class="stepper" *ngIf="currentStep > 1">
+    <ng-container *ngFor="let s of steps; let i = index">
+      <div class="step-dot" [class.active]="i + 1 === currentStep" [class.completed]="i + 1 < currentStep"></div>
+      <div *ngIf="i < steps.length - 1" class="step-line" [class.completed]="i + 1 < currentStep"></div>
+    </ng-container>
+  </div>
+
   <h2 class="form-title">Create Account</h2>
 
-  <div class="field-row">
+  <!-- ── Step 1: Email ── -->
+  <ng-container *ngIf="currentStep === 1">
     <div class="field-group">
-      <label class="field-label">First name</label>
-      <input [(ngModel)]="firstName" type="text" placeholder="Ahmed" class="field-input" />
+      <label class="field-label">Email</label>
+      <input #emailInput [(ngModel)]="email" type="email" placeholder="user@example.com" class="field-input" />
     </div>
+
+    <main-btn [color]="'primary-light'" [fullWidth]="true" (click)="goToOtp()">Next &rsaquo;</main-btn>
+  </ng-container>
+
+  <!-- ── Step 2: Verify OTP ── -->
+  <ng-container *ngIf="currentStep === 2">
+    <h3 class="step-subtitle">Verify OTP</h3>
+    <p class="otp-hint">
+      Please enter the 6-digits code we have sent to:<br />
+      <span class="otp-email">{{ email }}.</span>
+      <a class="otp-edit" (click)="editEmail()">Edit</a>
+    </p>
+
+    <div class="otp-boxes">
+      <input *ngFor="let box of otpBoxes; let i = index" #otpInput maxlength="1" inputmode="numeric" pattern="[0-9]*"
+        class="otp-box" [class.active]="otpValues[i] !== ''" [value]="otpValues[i]" (input)="onOtpInput($event, i)"
+        (keydown)="onOtpKeydown($event, i)" (paste)="onOtpPaste($event)" />
+    </div>
+
+    <p class="resend-hint">
+      <ng-container *ngIf="resendCountdown > 0">
+        You can request another code in: <strong>{{ resendCountdown }}s</strong>
+      </ng-container>
+      <a *ngIf="resendCountdown === 0" class="otp-edit" (click)="resendOtp()">Resend code</a>
+    </p>
+
+    <main-btn [color]="'primary-light'" [fullWidth]="true" (click)="verifyOtp()">Verify Code</main-btn>
+  </ng-container>
+
+  <!-- ── Step 3: Profile Info ── -->
+  <ng-container *ngIf="currentStep === 3">
+    <h3 class="step-subtitle">Tell us more about you</h3>
+
+    <div class="field-row">
+      <div class="field-group">
+        <label class="field-label">First name<span class="required">*</span></label>
+        <input [(ngModel)]="firstName" type="text" placeholder="Ahmed" class="field-input" />
+      </div>
+      <div class="field-group">
+        <label class="field-label">Last name<span class="required">*</span></label>
+        <input [(ngModel)]="lastName" type="text" placeholder="Abdullah" class="field-input" />
+      </div>
+    </div>
+
     <div class="field-group">
-      <label class="field-label">Last name</label>
-      <input [(ngModel)]="lastName" type="text" placeholder="Abdullah" class="field-input" />
+      <label class="field-label">Username<span class="required">*</span></label>
+      <input [(ngModel)]="username" type="text" placeholder="user123" class="field-input" />
     </div>
-  </div>
 
-  <div class="field-group">
-    <label class="field-label">Username</label>
-    <input [(ngModel)]="username" type="text" placeholder="user123" class="field-input" />
-  </div>
-
-  <div class="field-group">
-    <label class="field-label">Email</label>
-    <input [(ngModel)]="email" type="email" placeholder="user@example.com" class="field-input" />
-  </div>
-  <div class="field-group">
-    <label class="field-label">Phone</label>
-    <div
-      class="phone-wrapper flex border border-gray-300 rounded-lg overflow-hidden focus-within:ring-2 focus-within:ring-blue-500">
-
-     <select [(ngModel)]="selectedCountry"
-        class="bg-white text-gray-800 px-3 py-2 outline-none appearance-none border-none focus:ring-0">
-          <option value="+20">EG (+20)</option>
-          <option value="+1">US (+1)</option>
-          <option value="+44">UK (+44)</option>
-          <option value="+91">IN (+91)</option>
-      </select>
-      <!-- Phone input -->
-      <input [(ngModel)]="phone" type="tel" placeholder="1012345678"
-        class="flex-1 field-input border-none rounded-none focus:ring-0 focus:border-blue-500" />
+    <div class="field-group">
+      <label class="field-label">Phone</label>
+      <div class="phone-wrapper">
+        <span class="phone-flag">🇪🇬</span>
+        <select [(ngModel)]="selectedCountry" class="phone-select">
+          <option value="+20">EG(+20)</option>
+          <option value="+1">US(+1)</option>
+          <option value="+44">UK(+44)</option>
+          <option value="+91">IN(+91)</option>
+        </select>
+        <input [(ngModel)]="phone" type="tel" placeholder="1012345678" class="field-input phone-input" />
+      </div>
     </div>
-  </div>
-  <div class="field-group">
-    <label class="field-label">Password</label>
-    <div class="password-wrapper">
-      <input [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'" placeholder="••••••••"
-        class="field-input" />
-      <span class="eye-icon" (click)="showPassword = !showPassword">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-          <line x1="1" y1="1" x2="23" y2="23" />
-        </svg>
-      </span>
+
+    <main-btn [color]="'primary-light'" [fullWidth]="true" (click)="goToPassword()">Next &rsaquo;</main-btn>
+  </ng-container>
+
+  <!-- ── Step 4: Password ── -->
+  <ng-container *ngIf="currentStep === 4">
+    <h3 class="step-subtitle">Create a strong password</h3>
+
+    <div class="field-group">
+      <label class="field-label">Password<span class="required">*</span></label>
+      <div class="password-wrapper">
+        <input [(ngModel)]="password" [type]="showPassword ? 'text' : 'password'" placeholder="••••••••"
+          class="field-input" />
+        <span class="eye-icon" (click)="showPassword = !showPassword">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+          </svg>
+        </span>
+      </div>
     </div>
-  </div>
 
-  <div class="field-group">
-    <label class="field-label">Confirm Password</label>
-    <div class="password-wrapper">
-      <input [(ngModel)]="confirmPassword" [type]="showConfirm ? 'text' : 'password'" placeholder="••••••••"
-        class="field-input" />
-      <span class="eye-icon" (click)="showConfirm = !showConfirm">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8"
-          stroke-linecap="round" stroke-linejoin="round">
-          <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
-          <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
-          <line x1="1" y1="1" x2="23" y2="23" />
-        </svg>
-      </span>
+    <div class="field-group">
+      <label class="field-label">Confirm Password<span class="required">*</span></label>
+      <div class="password-wrapper">
+        <input [(ngModel)]="confirmPassword" [type]="showConfirm ? 'text' : 'password'" placeholder="••••••••"
+          class="field-input" />
+        <span class="eye-icon" (click)="showConfirm = !showConfirm">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9ca3af" stroke-width="1.8"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94" />
+            <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19" />
+            <line x1="1" y1="1" x2="23" y2="23" />
+          </svg>
+        </span>
+      </div>
     </div>
-  </div>
 
-  <main-btn color="primary" type="submit" (click)="onRegister()">Create Account</main-btn>
+    <main-btn [color]="'primary'" [fullWidth]="true" type="submit" (click)="onRegister()">Create
+      Account</main-btn>
+  </ng-container>
 
+  <!-- Login link (always shown) -->
   <question-link question="Already have an account?" linkLabel="Login" link="/auth/login">
   </question-link>
+
 </div>

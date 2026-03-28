@@ -9,7 +9,7 @@ import { CommonModule } from '@angular/common';
 })
 export class MainBtn {
   @Input() type: 'button' | 'submit' | 'reset' = 'button';
-  @Input() color: 'primary' | 'danger' | 'success' | 'ghost' | 'outline' | 'light-danger' = 'primary';
+  @Input() color: 'primary' | 'danger' | 'success' | 'ghost' | 'outline' | 'primary-light' | 'light-danger' = 'primary';
   @Input() icon?: string;
   @Input() iconPosition: 'left' | 'right' = 'left';
   @Input() fullWidth = false;
@@ -18,7 +18,7 @@ export class MainBtn {
   @Input() loading = false;
 
   get classes(): string {
-    const base = 'inline-flex items-center justify-center gap-2 font-mono font-medium rounded transition-all duration-200 cursor-pointer border border-transparent disabled:opacity-50 disabled:cursor-not-allowed';
+    const base = 'inline-flex items-center justify-center gap-2 font-mono font-medium rounded transition-all duration-200 cursor-pointer border disabled:opacity-50 disabled:cursor-not-allowed';
 
     const sizes: Record<string, string> = {
       sm: 'px-3 py-1.5 text-sm',
@@ -28,6 +28,7 @@ export class MainBtn {
 
     const colors: Record<string, string> = {
       primary: 'bg-blue-600 text-white hover:bg-blue-700',
+      'primary-light': 'bg-blue-50 text-dark border border-blue-600 hover:bg-blue-100',
       danger: 'bg-red-500 text-white hover:bg-red-600',
       success: 'bg-green-500 text-white hover:bg-green-600',
       ghost: 'bg-red-50 text-red-500 hover:bg-red-100',

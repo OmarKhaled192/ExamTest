@@ -1,9 +1,16 @@
 <button [type]="type" [class]="classes" [disabled]="disabled || loading">
-  <span *ngIf="loading" class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></span>
+  <!-- Loading Spinner -->
+  <span *ngIf="loading" class="w-4 h-4 border-2 border-current/30 border-t-current rounded-full animate-spin"></span>
+
+  <!-- Button Content -->
   <ng-container *ngIf="!loading">
+    <!-- Left Icon -->
     <span *ngIf="icon && iconPosition === 'left'" class="flex items-center" [innerHTML]="icon"></span>
+
+    <!-- Text -->
     <ng-content></ng-content>
+
+    <!-- Right Icon -->
     <span *ngIf="icon && iconPosition === 'right'" class="flex items-center" [innerHTML]="icon"></span>
   </ng-container>
 </button>
-

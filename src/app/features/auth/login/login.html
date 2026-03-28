@@ -36,7 +36,7 @@
     {{ globalError }}
   </div>
 
-  <main-btn color="primary" type="submit" (click)="onLogin()">Login</main-btn>
+  <main-btn color="primary" [fullWidth]="true" type="submit" (click)="onLogin()">Login</main-btn>
 
   <question-link question="Don't have an account?" linkLabel="Create yours" link="/auth/register">
   </question-link>
