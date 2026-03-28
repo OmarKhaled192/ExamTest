@@ -1,11 +1,9 @@
-import {
-  Component, signal, ViewChild, ElementRef, ViewChildren,
-  QueryList, OnDestroy, AfterViewInit
-} from '@angular/core';
+import { Component, OnDestroy, ViewChild, ViewChildren, ElementRef, QueryList, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
+import { AuthService } from '../../../../../dist/auth';
 
 const OTP_DEADLINE_KEY = 'register_otp_deadline';
 const OTP_LENGTH = 6;
@@ -14,24 +12,20 @@ const RESEND_SECONDS = 60;
 @Component({
   selector: 'app-register',
   standalone: true,
-  imports: [CommonModule, FormsModule, MainBtn, QuestionLink],
+  imports: [CommonModule, ReactiveFormsModule, MainBtn, QuestionLink],
   templateUrl: './register.html',
-  styleUrl: './register.scss'
+  styleUrls: ['./register.scss']
 })
 export class Register implements OnDestroy {
 
-  // ── stepper ──────────────────────────────────────────────────────────────
+  private authService = inject(AuthService);
+
   steps = [1, 2, 3, 4];
   currentStep = 1;
 
-  // ── fields ───────────────────────────────────────────────────────────────
-  firstName = ''; lastName = ''; username = '';
-  email = ''; phone = '';
-  password = ''; confirmPassword = '';
-  showPassword = false; showConfirm = false;
-  selectedCountry = '+20';
+  showPassword = false;
+  showConfirm = false;
 
-  // ── OTP ──────────────────────────────────────────────────────────────────
   otpBoxes = Array(OTP_LENGTH).fill(0);
   otpValues: string[] = Array(OTP_LENGTH).fill('');
   resendCountdown = 0;
@@ -40,67 +34,101 @@ export class Register implements OnDestroy {
   @ViewChild('emailInput') emailInputRef!: ElementRef<HTMLInputElement>;
   @ViewChildren('otpInput') otpInputRefs!: QueryList<ElementRef<HTMLInputElement>>;
 
-  // ── Step 1 → Step 2 ──────────────────────────────────────────────────────
+  // ── Reactive Forms ──────────────────────────────────────────────
+  emailForm = new FormGroup({
+    email: new FormControl('', [Validators.required, Validators.email])
+  });
+
+  otpForm = new FormGroup({}); // we’ll track otpValues separately
+
+  profileForm = new FormGroup({
+    firstName: new FormControl('', Validators.required),
+    lastName: new FormControl('', Validators.required),
+    username: new FormControl('', Validators.required),
+    selectedCountry: new FormControl('+20'),
+    phone: new FormControl('')
+  });
+
+  passwordForm = new FormGroup({
+    password: new FormControl('', Validators.required),
+    confirmPassword: new FormControl('', Validators.required)
+  });
+
+  // ── Step 1 → Step 2 ─────────────────────────────────────────────
   goToOtp(): void {
-    if (!this.email) return;
-    this.currentStep = 2;
-    this._startCountdown();
-    // focus first OTP box after view updates
-    setTimeout(() => this._focusOtp(0), 50);
+    if (this.emailForm.invalid) return;
+
+    const email = this.emailForm.value.email!;
+    this.authService.sendEmailVerification({ email }).subscribe({
+      next: () => {
+        this.currentStep = 2;
+        this._startCountdown();
+        setTimeout(() => this._focusOtp(0), 50);
+      },
+      error: (err) => alert('Failed to send OTP: ' + err)
+    });
   }
 
-  // ── OTP countdown (persisted via localStorage) ───────────────────────────
-  private _startCountdown(): void {
-    // Persist deadline so timer survives navigation away & back
-    const deadline = Date.now() + RESEND_SECONDS * 1000;
-    localStorage.setItem(OTP_DEADLINE_KEY, String(deadline));
-    this._tickCountdown(deadline);
+  // ── Step 2: OTP ───────────────────────────────────────────────
+  verifyOtp(): void {
+    if (!this.otpComplete) return;
+    const email = this.emailForm.value.email!;
+    const code = this.otpValues.join('');
+
+    this.authService.confirmEmailVerification({ email, code }).subscribe({
+      next: () => {
+        this._clearCountdownInterval();
+        localStorage.removeItem(OTP_DEADLINE_KEY);
+        this.currentStep = 3;
+      },
+      error: () => alert('Invalid OTP')
+    });
   }
 
-  private _tickCountdown(deadline: number): void {
-    this._clearCountdownInterval();
-    const tick = () => {
-      const remaining = Math.ceil((deadline - Date.now()) / 1000);
-      this.resendCountdown = Math.max(remaining, 0);
-      if (this.resendCountdown === 0) this._clearCountdownInterval();
+  // ── Step 3 → Step 4 ─────────────────────────────────────────────
+  goToPassword(): void {
+    if (this.profileForm.invalid) return;
+    this.currentStep = 4;
+  }
+
+  // ── Step 4: Submit ─────────────────────────────────────────────
+  onRegister(): void {
+    if (this.passwordForm.invalid) return;
+
+    const { password, confirmPassword } = this.passwordForm.value;
+    if (password !== confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    const payload = {
+      email: this.emailForm.value.email!,
+      firstName: this.profileForm.value.firstName!,
+      lastName: this.profileForm.value.lastName!,
+      username: this.profileForm.value.username!,
+      // phone: `${this.profileForm.value.selectedCountry}${this.profileForm.value.phone || ''}`,
+      phone: `${this.profileForm.value.phone || ''}`,
+      password: password!,
+      confirmPassword: confirmPassword!
     };
-    tick();
-    this._countdownInterval = setInterval(tick, 1000);
+
+    this.authService.register(payload).subscribe({
+      next: (res) => {
+        // alert(`Welcome ${res.user.firstName}!`);
+        console.log('Registered:', res);
+      },
+      error: (err) => alert('Registration failed: ' + err)
+    });
   }
 
-  private _clearCountdownInterval(): void {
-    if (this._countdownInterval !== null) {
-      clearInterval(this._countdownInterval);
-      this._countdownInterval = null;
-    }
-  }
-
-  /** Resume persisted countdown when component re-enters step 2 */
-  private _resumeCountdownIfActive(): void {
-    const stored = localStorage.getItem(OTP_DEADLINE_KEY);
-    if (!stored) return;
-    const deadline = Number(stored);
-    if (deadline > Date.now()) {
-      this._tickCountdown(deadline);
-    } else {
-      this.resendCountdown = 0;
-    }
-  }
-
-  resendOtp(): void {
-    // Re-trigger OTP send logic here
-    console.log('Resend OTP to', this.email);
-    this._startCountdown();
-  }
-
-  // ── Edit email → back to step 1, focus email field ───────────────────────
+  // ── Edit email ─────────────────────────────────────────────────
   editEmail(): void {
     this._clearCountdownInterval();
     this.currentStep = 1;
     setTimeout(() => this.emailInputRef?.nativeElement.focus(), 50);
   }
 
-  // ── OTP box handlers ─────────────────────────────────────────────────────
+  // ── OTP helpers ───────────────────────────────────────────────
   onOtpInput(event: Event, index: number): void {
     const input = event.target as HTMLInputElement;
     const val = input.value.replace(/\D/g, '').slice(-1);
@@ -132,30 +160,34 @@ export class Register implements OnDestroy {
     return this.otpValues.every(v => v !== '');
   }
 
-  // ── Step 2 → Step 3 ──────────────────────────────────────────────────────
-  verifyOtp(): void {
-    if (!this.otpComplete) return;
-    const code = this.otpValues.join('');
-    console.log('Verify OTP:', code);
+  // ── OTP countdown ─────────────────────────────────────────────
+  private _startCountdown(): void {
+    const deadline = Date.now() + RESEND_SECONDS * 1000;
+    localStorage.setItem(OTP_DEADLINE_KEY, String(deadline));
+    this._tickCountdown(deadline);
+  }
+
+  private _tickCountdown(deadline: number): void {
     this._clearCountdownInterval();
-    localStorage.removeItem(OTP_DEADLINE_KEY);
-    this.currentStep = 3;
+    const tick = () => {
+      const remaining = Math.ceil((deadline - Date.now()) / 1000);
+      this.resendCountdown = Math.max(remaining, 0);
+      if (this.resendCountdown === 0) this._clearCountdownInterval();
+    };
+    tick();
+    this._countdownInterval = setInterval(tick, 1000);
   }
 
-  // ── Step 3 → Step 4 ──────────────────────────────────────────────────────
-  goToPassword(): void {
-    if (!this.firstName || !this.lastName || !this.username) return;
-    this.currentStep = 4;
+  resendOtp(): void {
+    const email = this.emailForm.value.email!;
+    this.authService.sendEmailVerification({ email }).subscribe(() => this._startCountdown());
   }
 
-  // ── Step 4: Submit ────────────────────────────────────────────────────────
-  onRegister(): void {
-    if (!this.password || this.password !== this.confirmPassword) return;
-    console.log('Register submitted', {
-      email: this.email, firstName: this.firstName,
-      lastName: this.lastName, username: this.username,
-      phone: `${this.selectedCountry}${this.phone}`
-    });
+  private _clearCountdownInterval(): void {
+    if (this._countdownInterval !== null) {
+      clearInterval(this._countdownInterval);
+      this._countdownInterval = null;
+    }
   }
 
   ngOnDestroy(): void {
