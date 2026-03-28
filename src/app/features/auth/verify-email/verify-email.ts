@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, inject, Input } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Location } from '@angular/common';
 import { QuestionLink } from '../../../shared/question-link/question-link';
@@ -12,6 +12,6 @@ import { QuestionLink } from '../../../shared/question-link/question-link';
 })
 export class VerifyEmail {
   @Input() email = 'user@example.com';
-  constructor(private location: Location) {}
+  location = inject(Location)
   goBack() { this.location.back(); }
 }

@@ -1,8 +1,19 @@
-import { Component, Input, OnInit, OnDestroy, ViewChildren, QueryList, ElementRef, NgZone } from '@angular/core';
+import {
+  Component,
+  Input,
+  OnInit,
+  OnDestroy,
+  ViewChildren,
+  QueryList,
+  ElementRef,
+  NgZone,
+  inject
+} from '@angular/core';
 import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
+import { AuthService } from '../../../../../dist/auth';
 
 @Component({
   selector: 'app-verify-otp',
@@ -12,22 +23,40 @@ import { QuestionLink } from '../../../shared/question-link/question-link';
   styleUrl: './verify-otp.scss'
 })
 export class VerifyOtp implements OnInit, OnDestroy {
-  @Input() email = 'user@example.com';
-  @ViewChildren('box') boxes!: QueryList<ElementRef<HTMLInputElement>>;
+
+  @Input() email!: string;
+
+  @ViewChildren('otpInputs')
+  boxes!: QueryList<ElementRef<HTMLInputElement>>;
 
   otp: string[] = ['', '', '', '', '', ''];
   countdown = 60;
   private timer: any;
 
-  constructor(private location: Location, private zone: NgZone) { }
+  isLoading = false;
+  errorMessage = '';
+  successMessage = '';
+
+  location = inject(Location);
+  zone = inject(NgZone)
+  authService = inject(AuthService)
+
 
   ngOnInit() {
-    // Run timer OUTSIDE Angular zone to avoid triggering change detection every second
+    this.startTimer();
+  }
+
+  ngOnDestroy() {
+    clearInterval(this.timer);
+  }
+
+  startTimer() {
+    clearInterval(this.timer);
+
     this.zone.runOutsideAngular(() => {
       this.timer = setInterval(() => {
         if (this.countdown > 0) {
           this.countdown--;
-          // Re-enter zone only to update the view
           this.zone.run(() => { });
         } else {
           clearInterval(this.timer);
@@ -35,8 +64,6 @@ export class VerifyOtp implements OnInit, OnDestroy {
       }, 1000);
     });
   }
-
-  ngOnDestroy() { clearInterval(this.timer); }
 
   onKey(event: KeyboardEvent, i: number) {
     const input = event.target as HTMLInputElement;
@@ -58,11 +85,59 @@ export class VerifyOtp implements OnInit, OnDestroy {
 
   onVerify() {
     const code = this.otp.join('');
-    if (code.length < 6) return;
-    console.log('OTP submitted:', code);
+
+    if (code.length < 6) {
+      this.errorMessage = 'Please enter complete code';
+      return;
+    }
+
+    this.errorMessage = '';
+    this.successMessage = '';
+    this.isLoading = true;
+
+    this.authService.confirmEmailVerification({
+      email: this.email,
+      code: code
+    }).subscribe({
+      next: (res) => {
+        this.isLoading = false;
+        this.successMessage = res.message || 'Verification successful';
+
+        // this.router.navigate(['/auth/login']);
+      },
+      error: (err) => {
+        this.isLoading = false;
+        this.errorMessage =
+          err?.error?.message || 'Invalid or expired code';
+      }
+    });
   }
 
-  onEdit() { this.location.back(); }
-  resend() { this.countdown = 60; }
-  goBack() { this.location.back(); }
+  resend() {
+    this.errorMessage = '';
+    this.successMessage = '';
+
+    this.authService.sendEmailVerification({
+      email: this.email
+    }).subscribe({
+      next: (res) => {
+        this.successMessage = res.message || 'Code resent successfully';
+
+        this.countdown = 60;
+        this.startTimer();
+      },
+      error: (err) => {
+        this.errorMessage =
+          err?.error?.message || 'Failed to resend code';
+      }
+    });
+  }
+
+  onEdit() {
+    this.location.back();
+  }
+
+  goBack() {
+    this.location.back();
+  }
 }
