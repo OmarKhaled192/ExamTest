@@ -6,6 +6,7 @@ import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
 import { ForgotLink } from '../../../shared/forgot-link/forgot-link';
 import { AuthService, LoginRes } from '../../../../../dist/auth';
+import { TokenService } from '../../../core/services/token.service';
 
 @Component({
   selector: 'app-login',
@@ -17,6 +18,7 @@ import { AuthService, LoginRes } from '../../../../../dist/auth';
 export class Login {
   private router = inject(Router);
   private authService = inject(AuthService);
+  private tokenService = inject(TokenService);
 
   showPassword = false;
   globalError: string = '';
@@ -42,12 +44,12 @@ export class Login {
     }
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: (res: LoginRes) => {
+      next: (res: any) => {
         if (!res.status) {
           this.globalError = res?.message || 'Something went wrong. Please try again.';
         } else {
+          this.tokenService.setToken(res?.token);
           this.router.navigate(['/dashboard/diplomas']);
-          debugger
         }
       },
 

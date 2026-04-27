@@ -4,11 +4,13 @@ import { DiplomasPage } from './pages/diplomas/diplomas';
 import { ExamsPage } from './pages/exams/exams';
 import { QuestionsPage } from './pages/questions/questions';
 import { AccountPage } from './pages/account/account';
+import { authGuard } from '../../core/guards/auth.guard';
 
 export const DASHBOARD_ROUTES: Routes = [
   {
     path: 'dashboard',
     component: DashboardLayoutComponent,
+    canActivate: [authGuard],
     children: [
       { path: '', redirectTo: 'diplomas', pathMatch: 'full' },
 

@@ -6,11 +6,13 @@ import { VerifyOtp } from './verify-otp/verify-otp';
 import { ForgotPassword } from './forgot-password/forgot-password';
 import { CreatePassword } from './create-password/create-password';
 import { Auth } from './auth';
+import { guestGuard } from '../../core/guards/guest.guard';
 
 export const authRoutes: Routes = [
   {
     path: 'auth',
     component: Auth, // layout component
+    canActivate: [guestGuard],
     children: [
       { path: 'login', component: Login },
       { path: 'register', component: Register },
