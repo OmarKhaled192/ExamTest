@@ -65,6 +65,10 @@ export class AccountPage {
     console.log('Account deleted');
   }
 
+  changeEmail() {
+    console.log('Change email');
+  }
+
   logout() { console.log('Logout'); }
 }
 

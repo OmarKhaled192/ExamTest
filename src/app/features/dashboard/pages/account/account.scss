@@ -6,3 +6,32 @@
     }
   }
 }
+
+::ng-deep .label-container {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  p {
+    display: flex;
+    align-items: center;
+  }
+
+  .change-btn {
+    cursor: pointer;
+    font-family: 'Geist Mono';
+    font-weight: 500;
+    font-size: 14px;
+  }
+
+  .icon {
+    cursor: pointer;
+    margin-left: 5px;
+
+    svg {
+      &>path {
+        stroke: #6B7280 !important;
+      }
+    }
+  }
+}
