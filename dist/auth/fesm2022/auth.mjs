@@ -20,9 +20,11 @@ class AuthEndPoints {
 class AuthAdaptor {
     adapt(res) {
         return {
-            token: res.data.token,
-            email: res.data.user.email,
-            userData: res.data.user
+            message: res.message,
+            status: res.status,
+            token: res.payload.token,
+            email: res.payload.user.email,
+            userData: res.payload.user
         };
     }
     static ɵfac = i0.ɵɵngDeclareFactory({ minVersion: "12.0.0", version: "20.3.17", ngImport: i0, type: AuthAdaptor, deps: [], target: i0.ɵɵFactoryTarget.Injectable });
@@ -44,7 +46,7 @@ class AuthService {
     }
     register(data) {
         return this._httpClient.post(AuthEndPoints.REGISTER, data)
-            .pipe(catchError(err => of(err)));
+            .pipe(map(res => this._authAdaptor.adapt(res)), catchError(err => of(err)));
     }
     sendEmailVerification(data) {
         return this._httpClient.post(AuthEndPoints.SEND_EMAIL_VERIFICATION, data)

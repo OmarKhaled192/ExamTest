@@ -17,7 +17,7 @@ export const authRoutes: Routes = [
       { path: 'verify-email', component: VerifyEmail },
       { path: 'verify-otp', component: VerifyOtp },
       { path: 'forgot-password', component: ForgotPassword },
-      { path: 'create-password', component: CreatePassword },
+      { path: 'reset-password', component: CreatePassword },
       { path: '', redirectTo: 'login', pathMatch: 'full' },
     ],
   },

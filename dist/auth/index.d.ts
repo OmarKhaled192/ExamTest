@@ -41,6 +41,18 @@ interface LoginRes {
     };
 }
 
+interface User {
+    id: string;
+    username: string;
+    email: string;
+    phone: string;
+    firstName: string;
+    lastName: string;
+    emailVerified: boolean;
+    phoneVerified: boolean;
+    role: string;
+}
+
 interface RegisterReq {
     username: string;
     email: string;
@@ -51,21 +63,13 @@ interface RegisterReq {
     phone: string;
 }
 interface RegisterRes {
-    user: {
-        id: string;
-        username: string;
-        email: string;
-        phone: string;
-        firstName: string;
-        lastName: string;
-        profilePhoto: string;
-        emailVerified: boolean;
-        phoneVerified: boolean;
-        role: string;
-        createdAt: string;
-        updatedAt: string;
+    status: boolean;
+    code: number;
+    message?: string;
+    payload: {
+        user: User;
+        token: string;
     };
-    token: string;
 }
 
 interface ResetPasswordReq {
@@ -107,4 +111,13 @@ declare class AuthService implements AuthApi {
     static ɵprov: i0.ɵɵInjectableDeclaration<AuthService>;
 }
 
+interface AuthModel {
+    status: boolean;
+    token: string;
+    email: string;
+    userData: User;
+    message?: string;
+}
+
 export { AuthService };
+export type { AuthModel, LoginReq, LoginRes };

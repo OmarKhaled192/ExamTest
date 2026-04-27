@@ -1,15 +1,19 @@
 import { Injectable } from '@angular/core';
 import { Adaptor } from '../interfaces/adaptor';
+import { RegisterRes } from '../models/register.model';
+import { AuthModel } from '../models/auth-model';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthAdaptor implements Adaptor {
-  adapt(res: any): any {
+  adapt(res: RegisterRes): AuthModel {
     return {
-      token: res.data.token,
-      email: res.data.user.email,
-      userData: res.data.user
+      message: res.message,
+      status: res.status,
+      token: res.payload.token,
+      email: res.payload.user.email,
+      userData: res.payload.user
     }
   }
 }
