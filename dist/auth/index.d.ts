@@ -1,5 +1,6 @@
 import { Observable } from 'rxjs';
 import * as i0 from '@angular/core';
+import { InjectionToken } from '@angular/core';
 
 interface ConfirmEmailVerificationReq {
     email: string;
@@ -101,6 +102,7 @@ declare abstract class AuthApi {
 declare class AuthService implements AuthApi {
     private readonly _httpClient;
     private readonly _authAdaptor;
+    private readonly _apiUrl;
     login(data: LoginReq): Observable<LoginRes>;
     register(data: RegisterReq): Observable<RegisterRes>;
     sendEmailVerification(data: SendEmailVerificationReq): Observable<SendEmailVerificationRes>;
@@ -119,5 +121,7 @@ interface AuthModel {
     message?: string;
 }
 
-export { AuthService };
+declare const API_URL: InjectionToken<string>;
+
+export { API_URL, AuthService };
 export type { AuthModel, LoginReq, LoginRes };
