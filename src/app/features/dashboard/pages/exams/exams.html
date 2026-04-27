@@ -16,11 +16,11 @@
     >
       <div class="flex flex-col gap-1">
         <span class="font-mono font-semibold text-blue-600 text-base group-hover:text-blue-700">{{ exam.title }}</span>
-        <span class="font-mono text-gray-400 text-sm">{{ exam.questionCount }} Questions</span>
+        <span class="font-mono text-gray-400 text-sm">{{ exam.questionsCount }} Questions</span>
       </div>
       <div class="flex items-center gap-2 text-gray-400 font-mono text-sm">
         <span class="flex items-center" [innerHTML]="clockIcon"></span>
-        <span>Duration: {{ exam.durationMinutes }} minutes</span>
+        <span>Duration: {{ exam.duration }} minutes</span>
       </div>
     </a>
 

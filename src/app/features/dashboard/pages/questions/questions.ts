@@ -1,14 +1,17 @@
-import { Component, OnInit, OnDestroy, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header';
+import { QuestionsService } from '../../../../core/services/questions.service';
+import { SubmissionsService } from '../../../../core/services/submissions.service';
 
-export interface Question {
-  id: number;
+export interface UIQuestion {
+  id: string;
   text: string;
   options: string[];
-  correctIndex: number;
+  answerIds: string[];
+  correctIndex: number | null;
   selectedIndex: number | null;
 }
 
@@ -19,10 +22,18 @@ export interface Question {
   templateUrl: './questions.html',
 })
 export class QuestionsPage implements OnInit, OnDestroy {
+  private readonly questionsService = inject(QuestionsService);
+  private readonly submissionsService = inject(SubmissionsService);
+  private readonly route = inject(ActivatedRoute);
+
+  diplomaId = '';
+  examId = '';
+  startedAt = new Date().toISOString();
+
   breadcrumbs = [
     { label: 'Home', path: '/dashboard' },
     { label: 'Exams', path: '/dashboard/diplomas/1/exams' },
-    { label: 'CSS Quiz' },
+    { label: 'Exam' },
     { label: 'Questions' }
   ];
 
@@ -32,21 +43,15 @@ export class QuestionsPage implements OnInit, OnDestroy {
     <line x1="12" y1="17" x2="12.01" y2="17"/>
   </svg>`;
 
-  questions: Question[] = Array.from({ length: 25 }, (_, i) => ({
-    id: i + 1,
-    text: 'What does CSS stand for?',
-    options: ['Computer Style Sheets', 'Creative Style Sheets', 'Cascading Style Sheets', 'Colorful Style Sheets'],
-    correctIndex: 2,
-    selectedIndex: null,
-  }));
+  questions = signal<UIQuestion[]>([]);
 
   currentIndex = signal(0);
   timeLeftSec = signal(61);
   showResults = signal(false);
   private timerRef: any;
 
-  currentQuestion = computed(() => this.questions[this.currentIndex()]);
-  progressPct = computed(() => ((this.currentIndex() + 1) / this.questions.length) * 100);
+  currentQuestion = computed(() => this.questions()[this.currentIndex()] || { options: [] });
+  progressPct = computed(() => this.questions().length ? ((this.currentIndex() + 1) / this.questions().length) * 100 : 0);
   timerDeg = computed(() => (this.timeLeftSec() / 61) * 360);
 
   get timerDisplay(): string {
@@ -59,14 +64,38 @@ export class QuestionsPage implements OnInit, OnDestroy {
     return this.timeLeftSec() > 15 ? '#2563eb' : '#ef4444';
   }
 
-  // SVG donut values (r=22, circumference=138.23)
-  get correctCount(): number { return this.questions.filter(q => q.selectedIndex === q.correctIndex).length; }
-  get incorrectCount(): number { return this.questions.filter(q => q.selectedIndex !== null && q.selectedIndex !== q.correctIndex).length; }
-  get correctDash(): string { return `${(this.correctCount / this.questions.length) * 138.23} 138.23`; }
-  get incorrectOffset(): number { return -((this.correctCount / this.questions.length) * 138.23); }
-  get incorrectDash(): string { return `${(this.incorrectCount / this.questions.length) * 138.23} 138.23`; }
+  get correctCount(): number { return this.questions().filter(q => q.correctIndex !== null && q.selectedIndex === q.correctIndex).length; }
+  get incorrectCount(): number { return this.questions().filter(q => q.selectedIndex !== null && q.correctIndex !== null && q.selectedIndex !== q.correctIndex).length; }
+  get correctDash(): string { return `${this.questions().length ? (this.correctCount / this.questions().length) * 138.23 : 0} 138.23`; }
+  get incorrectOffset(): number { return this.questions().length ? -((this.correctCount / this.questions().length) * 138.23) : 0; }
+  get incorrectDash(): string { return `${this.questions().length ? (this.incorrectCount / this.questions().length) * 138.23 : 0} 138.23`; }
 
-  ngOnInit() { this.startTimer(); }
+  ngOnInit() {
+    this.diplomaId = this.route.snapshot.params['diplomaId'];
+    this.examId = this.route.snapshot.params['examId'];
+    this.breadcrumbs[1].path = `/dashboard/diplomas/${this.diplomaId}/exams`;
+
+    this.questionsService.getExamQuestions(this.examId).subscribe({
+      next: (res) => {
+        this.questions.set(res.map(q => {
+          return {
+            id: q.id,
+            text: q.text,
+            options: q.answers.map(a => a.text),
+            answerIds: q.answers.map(a => a.id),
+            correctIndex: null,
+            selectedIndex: null
+          };
+        }));
+        this.startedAt = new Date().toISOString();
+        if (this.questions().length > 0) {
+          this.startTimer();
+        }
+      },
+      error: (err) => console.error('Failed to load questions', err)
+    });
+  }
+
   ngOnDestroy() { clearInterval(this.timerRef); }
 
   startTimer() {
@@ -81,26 +110,70 @@ export class QuestionsPage implements OnInit, OnDestroy {
   }
 
   advance() {
-    if (this.currentIndex() < this.questions.length - 1) {
+    if (this.currentIndex() < this.questions().length - 1) {
       this.currentIndex.update(i => i + 1);
       this.startTimer();
     } else {
-      this.showResults.set(true);
-      clearInterval(this.timerRef);
+      this.submitExam();
     }
   }
 
-  select(i: number) { this.questions[this.currentIndex()].selectedIndex = i; }
+  submitExam() {
+    clearInterval(this.timerRef);
+
+    const answers = this.questions()
+      .filter(q => q.selectedIndex !== null)
+      .map(q => ({
+        questionId: q.id,
+        answerId: q.answerIds[q.selectedIndex!]
+      }));
+
+    this.submissionsService.submitExam({
+      examId: this.examId,
+      startedAt: this.startedAt,
+      answers
+    }).subscribe({
+      next: (res) => {
+        if (res.analytics) {
+          this.questions.update(qs => {
+            res.analytics.forEach(analytic => {
+              const q = qs.find(q => q.id === analytic.questionId);
+              if (q && analytic.correctAnswer && analytic.correctAnswer.id) {
+                q.correctIndex = q.answerIds.indexOf(analytic.correctAnswer.id);
+              }
+            });
+            return [...qs];
+          });
+        }
+        this.showResults.set(true);
+      },
+      error: (err) => console.error('Submission failed', err)
+    });
+  }
+
+  select(i: number) {
+    this.questions.update(qs => {
+      qs[this.currentIndex()].selectedIndex = i;
+      return [...qs];
+    });
+  }
+
   next() { this.advance(); }
   prev() {
     if (this.currentIndex() > 0) { this.currentIndex.update(i => i - 1); this.startTimer(); }
   }
 
   restart() {
-    this.questions.forEach(q => q.selectedIndex = null);
+    this.questions.update(qs => {
+      qs.forEach(q => q.selectedIndex = null);
+      return [...qs];
+    });
     this.currentIndex.set(0);
     this.showResults.set(false);
-    this.startTimer();
+    this.startedAt = new Date().toISOString();
+    if (this.questions().length > 0) {
+      this.startTimer();
+    }
   }
 }
 

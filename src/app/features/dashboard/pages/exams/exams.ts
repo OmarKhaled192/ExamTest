@@ -1,15 +1,10 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, ActivatedRoute } from '@angular/router';
 import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header';
-
-interface Exam {
-  id: number;
-  title: string;
-  questionCount: number;
-  durationMinutes: number;
-}
+import { ExamsService } from '../../../../core/services/exams.service';
+import { Exam } from '../../../../core/models/exam.model';
 
 @Component({
   selector: 'app-exams',
@@ -18,8 +13,9 @@ interface Exam {
   templateUrl: './exams.html',
 })
 export class ExamsPage implements OnInit {
-  diplomaId = 1;
-  diplomaTitle = 'Flutter Development';
+  private readonly examsService = inject(ExamsService);
+  diplomaId: string = '';
+  diplomaTitle = 'Diploma Exams';
 
   breadcrumbs = [
     { label: 'Home', path: '/dashboard' },
@@ -36,17 +32,23 @@ export class ExamsPage implements OnInit {
     <circle cx="12" cy="12" r="10"/><polyline points="12,6 12,12 16,14"/>
   </svg>`;
 
-  exams: Exam[] = [
-    { id: 1, title: 'CSS Quiz', questionCount: 25, durationMinutes: 20 },
-    { id: 2, title: 'Bootstrap Quiz', questionCount: 25, durationMinutes: 20 },
-    { id: 3, title: 'Tailwind Quiz', questionCount: 25, durationMinutes: 20 },
-    { id: 4, title: 'React Quiz', questionCount: 25, durationMinutes: 20 },
-  ];
+  exams: Exam[] = [];
 
   constructor(private route: ActivatedRoute) { }
 
   ngOnInit() {
-    this.diplomaId = +this.route.snapshot.params['diplomaId'];
+    this.diplomaId = this.route.snapshot.params['diplomaId'];
+    
+    this.examsService.getExams(1, 100, this.diplomaId).subscribe({
+      next: (res) => {
+        this.exams = res.data;
+        if (this.exams.length > 0 && this.exams[0].diploma) {
+          this.diplomaTitle = this.exams[0].diploma.title;
+          this.breadcrumbs[1].label = this.diplomaTitle;
+        }
+      },
+      error: (err) => console.error('Error fetching exams', err)
+    });
   }
 }
 

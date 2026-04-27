@@ -1,0 +1,15 @@
+{
+  "routes": {
+    "/": {},
+    "/auth": {},
+    "/auth/forgot-password": {},
+    "/auth/login": {},
+    "/auth/register": {},
+    "/auth/reset-password": {},
+    "/auth/verify-email": {},
+    "/auth/verify-otp": {},
+    "/dashboard": {},
+    "/dashboard/account": {},
+    "/dashboard/diplomas": {}
+  }
+}
