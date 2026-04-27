@@ -64,8 +64,8 @@ export class QuestionsPage implements OnInit, OnDestroy {
     return this.timeLeftSec() > 15 ? '#2563eb' : '#ef4444';
   }
 
-  get correctCount(): number { return this.questions().filter(q => q.correctIndex !== null && q.selectedIndex === q.correctIndex).length; }
-  get incorrectCount(): number { return this.questions().filter(q => q.selectedIndex !== null && q.correctIndex !== null && q.selectedIndex !== q.correctIndex).length; }
+  correctCount = 0;
+  incorrectCount = 0;
   get correctDash(): string { return `${this.questions().length ? (this.correctCount / this.questions().length) * 138.23 : 0} 138.23`; }
   get incorrectOffset(): number { return this.questions().length ? -((this.correctCount / this.questions().length) * 138.23) : 0; }
   get incorrectDash(): string { return `${this.questions().length ? (this.incorrectCount / this.questions().length) * 138.23 : 0} 138.23`; }
@@ -133,10 +133,21 @@ export class QuestionsPage implements OnInit, OnDestroy {
       startedAt: this.startedAt,
       answers
     }).subscribe({
-      next: (res) => {
-        if (res.analytics) {
+      next: (res: any) => {
+        const payload = res.payload || res;
+        
+        // Use submission counts or calculate from analytics
+        if (payload.submission) {
+          this.correctCount = payload.submission.correctAnswers;
+          this.incorrectCount = payload.submission.wrongAnswers;
+        } else if (payload.analytics) {
+          this.correctCount = payload.analytics.filter((a: any) => a.isCorrect === true).length;
+          this.incorrectCount = payload.analytics.filter((a: any) => a.isCorrect === false).length;
+        }
+
+        if (payload.analytics) {
           this.questions.update(qs => {
-            res.analytics.forEach(analytic => {
+            payload.analytics.forEach((analytic: any) => {
               const q = qs.find(q => q.id === analytic.questionId);
               if (q && analytic.correctAnswer && analytic.correctAnswer.id) {
                 q.correctIndex = q.answerIds.indexOf(analytic.correctAnswer.id);
