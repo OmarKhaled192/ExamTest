@@ -3,15 +3,15 @@ import { Injectable, InjectionToken, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { map, catchError, of } from 'rxjs';
 
-class AuthEndPoints {
-    static AUTH = '/api/auth';
-    static SEND_EMAIL_VERIFICATION = `${this.AUTH}/send-email-verification`;
-    static CONFIRM_EMAIL_VERIFICATION = `${this.AUTH}/confirm-email-verification`;
-    static REGISTER = `${this.AUTH}/register`;
-    static LOGIN = `${this.AUTH}/login`;
-    static FORGOT_PASSWORD = `${this.AUTH}/forgot-password`;
-    static RESET_PASSWORD = `${this.AUTH}/reset-password`;
-}
+var AuthEndPoints;
+(function (AuthEndPoints) {
+    AuthEndPoints["SEND_EMAIL_VERIFICATION"] = "/api/auth/send-email-verification";
+    AuthEndPoints["CONFIRM_EMAIL_VERIFICATION"] = "/api/auth/confirm-email-verification";
+    AuthEndPoints["REGISTER"] = "/api/auth/register";
+    AuthEndPoints["LOGIN"] = "/api/auth/login";
+    AuthEndPoints["FORGOT_PASSWORD"] = "/api/auth/forgot-password";
+    AuthEndPoints["RESET_PASSWORD"] = "/api/auth/reset-password";
+})(AuthEndPoints || (AuthEndPoints = {}));
 
 class AuthAdaptor {
     adapt(res) {

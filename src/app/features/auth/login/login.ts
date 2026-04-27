@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
 import { ForgotLink } from '../../../shared/forgot-link/forgot-link';
-import { AuthService, LoginRes } from '../../../../../dist/auth';
+import { AuthModel, AuthService, LoginRes } from '../../../../../dist/auth';
 import { TokenService } from '../../../core/services/token.service';
 
 @Component({
@@ -24,7 +24,7 @@ export class Login {
   globalError: string = '';
 
   // Reactive form without FormBuilder
-  loginForm: FormGroup<any> = new FormGroup({
+  loginForm: FormGroup = new FormGroup({
     username: new FormControl('', Validators.required),
     password: new FormControl('', Validators.required)
   });
@@ -44,7 +44,7 @@ export class Login {
     }
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: (res: any) => {
+      next: (res: AuthModel) => {
         if (!res.status) {
           this.globalError = res?.message || 'Something went wrong. Please try again.';
         } else {

@@ -5,11 +5,12 @@ import { LoginReq, LoginRes } from "../models/login.model";
 import { RegisterReq, RegisterRes } from "../models/register.model";
 import { ResetPasswordReq, ResetPasswordRes } from "../models/reset-password.model";
 import { SendEmailVerificationReq, SendEmailVerificationRes } from "../models/send-email-verification.model";
+import { AuthModel } from "../models/auth-model";
 
 export abstract class AuthApi {
-  abstract login(data: LoginReq): Observable<LoginRes>;
+  abstract login(data: LoginReq): Observable<AuthModel>;
 
-  abstract register(data: RegisterReq): Observable<RegisterRes>;
+  abstract register(data: RegisterReq): Observable<AuthModel>;
 
   abstract sendEmailVerification(data: SendEmailVerificationReq): Observable<SendEmailVerificationRes>;
 

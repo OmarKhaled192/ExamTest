@@ -31,7 +31,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
 
   otp: string[] = ['', '', '', '', '', ''];
   countdown = 60;
-  private timer: any;
+  private timer: ReturnType<typeof setInterval> | undefined;
 
   isLoading = false;
   errorMessage = '';

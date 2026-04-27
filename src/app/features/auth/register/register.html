@@ -8,6 +8,11 @@
     </ng-container>
   </div>
 
+  <!-- Global error -->
+  <div *ngIf="errorMessage" class="global-error">
+    {{ errorMessage }}
+  </div>
+
   <h2 class="form-title">Create Account</h2>
 
   <!-- Step 1: Email -->
@@ -17,7 +22,7 @@
         <label class="field-label">Email</label>
         <input #emailInput type="email" placeholder="user@example.com" class="field-input" formControlName="email" />
       </div>
-      <main-btn [color]="'primary-light'" [fullWidth]="true" (click)="goToOtp()">Next &rsaquo;</main-btn>
+      <main-btn [color]="'primary-light'" [fullWidth]="true" [disabled]="emailForm.invalid" (click)="goToOtp()">Next &rsaquo;</main-btn>
     </form>
   </ng-container>
 
@@ -44,7 +49,7 @@
         <a *ngIf="resendCountdown === 0" class="otp-edit" (click)="resendOtp()">Resend code</a>
       </p>
 
-      <main-btn [color]="'primary-light'" [fullWidth]="true" (click)="verifyOtp()">Verify Code</main-btn>
+      <main-btn [color]="'primary-light'" [fullWidth]="true" [disabled]="!otpComplete" (click)="verifyOtp()">Verify Code</main-btn>
     </form>
   </ng-container>
 
@@ -72,7 +77,6 @@
       <div class="field-group">
         <label class="field-label">Phone</label>
         <div class="phone-wrapper">
-          <span class="phone-flag">🇪🇬</span>
           <select class="phone-select" formControlName="selectedCountry">
             <option value="+20">EG(+20)</option>
             <option value="+1">US(+1)</option>
@@ -83,7 +87,7 @@
         </div>
       </div>
 
-      <main-btn [color]="'primary-light'" [fullWidth]="true" (click)="goToPassword()">Next &rsaquo;</main-btn>
+      <main-btn [color]="'primary-light'" [fullWidth]="true" [disabled]="profileForm.invalid" (click)="goToPassword()">Next &rsaquo;</main-btn>
     </form>
   </ng-container>
 
@@ -110,7 +114,7 @@
         </div>
       </div>
 
-      <main-btn [color]="'primary'" [fullWidth]="true" (click)="onRegister()">Create Account</main-btn>
+      <main-btn [color]="'primary'" [fullWidth]="true" [disabled]="passwordForm.invalid" (click)="onRegister()">Create Account</main-btn>
     </form>
   </ng-container>
 

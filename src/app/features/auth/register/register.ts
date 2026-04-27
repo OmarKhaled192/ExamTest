@@ -1,4 +1,5 @@
 import { Component, OnDestroy, ViewChild, ViewChildren, ElementRef, QueryList, inject } from '@angular/core';
+import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
@@ -19,12 +20,15 @@ const RESEND_SECONDS = 60;
 export class Register implements OnDestroy {
 
   private authService = inject(AuthService);
+  private router = inject(Router);
 
   steps = [1, 2, 3, 4];
   currentStep = 1;
 
   showPassword = false;
   showConfirm = false;
+
+  errorMessage = '';
 
   otpBoxes = Array(OTP_LENGTH).fill(0);
   otpValues: string[] = Array(OTP_LENGTH).fill('');
@@ -58,6 +62,7 @@ export class Register implements OnDestroy {
   goToOtp(): void {
     if (this.emailForm.invalid) return;
 
+    this.errorMessage = '';
     const email = this.emailForm.value.email!;
     this.authService.sendEmailVerification({ email }).subscribe({
       next: () => {
@@ -65,7 +70,9 @@ export class Register implements OnDestroy {
         this._startCountdown();
         setTimeout(() => this._focusOtp(0), 50);
       },
-      error: (err) => alert('Failed to send OTP: ' + err)
+      error: (err) => {
+        this.errorMessage = err?.error?.message || 'Failed to send OTP';
+      }
     });
   }
 
@@ -95,9 +102,10 @@ export class Register implements OnDestroy {
   onRegister(): void {
     if (this.passwordForm.invalid) return;
 
+    this.errorMessage = '';
     const { password, confirmPassword } = this.passwordForm.value;
     if (password !== confirmPassword) {
-      alert('Passwords do not match');
+      this.errorMessage = 'Passwords do not match';
       return;
     }
 
@@ -106,7 +114,6 @@ export class Register implements OnDestroy {
       firstName: this.profileForm.value.firstName!,
       lastName: this.profileForm.value.lastName!,
       username: this.profileForm.value.username!,
-      // phone: `${this.profileForm.value.selectedCountry}${this.profileForm.value.phone || ''}`,
       phone: `${this.profileForm.value.phone || ''}`,
       password: password!,
       confirmPassword: confirmPassword!
@@ -114,10 +121,12 @@ export class Register implements OnDestroy {
 
     this.authService.register(payload).subscribe({
       next: (res) => {
-        // alert(`Welcome ${res.user.firstName}!`);
         console.log('Registered:', res);
+        this.router.navigate(['/auth/login']);
       },
-      error: (err) => alert('Registration failed: ' + err)
+      error: (err) => {
+        this.errorMessage = err?.error?.message || 'Registration failed';
+      }
     });
   }
 

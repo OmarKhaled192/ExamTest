@@ -11,6 +11,7 @@ import { LoginReq, LoginRes } from './models/login.model';
 import { RegisterReq, RegisterRes } from './models/register.model';
 import { ResetPasswordReq, ResetPasswordRes } from './models/reset-password.model';
 import { SendEmailVerificationReq, SendEmailVerificationRes } from './models/send-email-verification.model';
+import { AuthModel } from './models/auth-model';
 
 @Injectable({
   providedIn: 'root',
@@ -21,7 +22,7 @@ export class AuthService implements AuthApi {
   private readonly _authAdaptor = inject(AuthAdaptor);
   private readonly _apiUrl = inject(API_URL);
 
-  login(data: LoginReq): Observable<LoginRes> {
+  login(data: LoginReq): Observable<AuthModel> {
     return this._httpClient.post<LoginRes>(`${this._apiUrl}${AuthEndPoints.LOGIN}`, data)
       .pipe(
         map(res => this._authAdaptor.adapt(res)),
@@ -29,7 +30,7 @@ export class AuthService implements AuthApi {
       );
   }
 
-  register(data: RegisterReq): Observable<RegisterRes> {
+  register(data: RegisterReq): Observable<AuthModel> {
     return this._httpClient.post<RegisterRes>(`${this._apiUrl}${AuthEndPoints.REGISTER}`, data)
       .pipe(
         map(res => this._authAdaptor.adapt(res)),
