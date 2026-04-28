@@ -44,12 +44,12 @@ export class Login {
     }
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: (res: AuthModel) => {
-        if (!res.status) {
-          this.globalError = res?.message || 'Something went wrong. Please try again.';
-        } else {
+      next: (res: any) => {
+        if (res.status == true) {
           this.tokenService.setToken(res?.token);
           this.router.navigate(['/dashboard/diplomas']);
+        } else {
+          this.globalError = res?.error?.message || 'Something went wrong. Please try again.';
         }
       },
 
