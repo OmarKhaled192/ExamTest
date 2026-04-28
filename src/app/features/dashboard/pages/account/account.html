@@ -314,9 +314,10 @@
       </div>
 
       <p class="text-center font-mono text-sm text-gray-500 mb-2">
-        You can request another code in: 
-        <span [class]="timer() === 0 ? 'text-red-500 font-bold' : 'text-gray-800'">
-          {{ timer() === 0 ? 'not-valid' : timer() + 's' }}
+        You can request another code in:
+        <span [class]="timer() === 0 ? 'text-blue-500 font-bold cursor-pointer' : 'text-gray-800'"
+          (click)="timer() === 0 ? startTimer() : null">
+          {{ timer() === 0 ? 'Resend Code' : (timer() + 's') }}
         </span>
       </p>
     </div>

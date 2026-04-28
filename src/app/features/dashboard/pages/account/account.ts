@@ -1,4 +1,4 @@
-import { Component, signal, inject, NgZone, ChangeDetectorRef } from '@angular/core';
+import { Component, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
@@ -16,8 +16,6 @@ type Tab = 'profile' | 'password';
   styleUrls: ['./account.scss']
 })
 export class AccountPage {
-  private ngZone = inject(NgZone);
-  private cdr = inject(ChangeDetectorRef);
 
   breadcrumbs = [
     { label: 'Home', path: '/dashboard' },
@@ -40,7 +38,15 @@ export class AccountPage {
   showNew = signal(false);
   showConfirm = signal(false);
 
-  profile = { firstName: 'Ahmed', lastName: 'Abdullah', username: 'user123', email: 'user@example.com', phone: '1012345678', countryCode: 'EG(+20)' };
+  profile = {
+    firstName: 'Ahmed',
+    lastName: 'Abdullah',
+    username: 'user123',
+    email: 'user@example.com',
+    phone: '1012345678',
+    countryCode: 'EG(+20)'
+  };
+
   passwords = { current: '', newPw: '', confirm: '' };
   changeEmailData = { email: '', otp: ['', '', '', '', '', ''] };
   countryCodes = ['EG(+20)', 'US(+1)', 'UK(+44)', 'AE(+971)', 'SA Saudi Arabia(+966)'];
@@ -48,7 +54,9 @@ export class AccountPage {
   timer = signal(60);
   private timerInterval: any;
 
-  setTab(t: Tab) { this.activeTab.set(t); }
+  setTab(t: Tab) {
+    this.activeTab.set(t);
+  }
 
   saveProfile() {
     this.saving.set(true);
@@ -64,9 +72,11 @@ export class AccountPage {
       this.pwError.set('Passwords do not match.');
       return;
     }
+
     this.pwError.set('');
     this.pwSuccess.set(true);
     this.passwords = { current: '', newPw: '', confirm: '' };
+
     setTimeout(() => this.pwSuccess.set(false), 3500);
   }
 
@@ -90,18 +100,15 @@ export class AccountPage {
   }
 
   startTimer() {
-    this.timer.set(60);
     this.stopTimer();
-    
+    this.timer.set(60);
+
     this.timerInterval = setInterval(() => {
-      this.ngZone.run(() => {
-        if (this.timer() > 0) {
-          this.timer.update(v => v - 1);
-          this.cdr.detectChanges();
-        } else {
-          this.stopTimer();
-        }
-      });
+      if (this.timer() > 0) {
+        this.timer.update(v => v - 1);
+      } else {
+        this.stopTimer();
+      }
     }, 1000);
   }
 
@@ -120,11 +127,11 @@ export class AccountPage {
   verifyEmailCode() {
     console.log('Verifying code:', this.changeEmailData.otp.join(''));
     this.closeEmailModal();
-    // Add success logic here if needed
   }
 
   editEmail() {
     this.changeEmailStep.set('enter-email');
+    this.stopTimer();
   }
 
   trackByFn(index: number) {
@@ -133,30 +140,28 @@ export class AccountPage {
 
   onOtpInput(event: Event, index: number) {
     const input = event.target as HTMLInputElement;
-    let value = input.value;
-
-    value = value.replace(/[^0-9]/g, '');
+    let value = input.value.replace(/[^0-9]/g, '');
     input.value = value;
 
     this.changeEmailData.otp[index] = value;
 
     if (value && index < 5) {
       const nextInput = input.nextElementSibling as HTMLInputElement;
-      if (nextInput) nextInput.focus();
+      nextInput?.focus();
     }
   }
 
   onOtpKeydown(event: KeyboardEvent, index: number) {
     const input = event.target as HTMLInputElement;
+
     if (event.key === 'Backspace' && !input.value && index > 0) {
       const prevInput = input.previousElementSibling as HTMLInputElement;
-      if (prevInput) {
-        prevInput.focus();
-        this.changeEmailData.otp[index - 1] = '';
-      }
+      prevInput?.focus();
+      this.changeEmailData.otp[index - 1] = '';
     }
   }
 
-  logout() { console.log('Logout'); }
+  logout() {
+    console.log('Logout');
+  }
 }
-
