@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, signal, inject, NgZone, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
@@ -11,11 +11,14 @@ type Tab = 'profile' | 'password';
 @Component({
   selector: 'app-account',
   standalone: true,
-  imports: [CommonModule, FormsModule, BreadcrumbComponent, PageHeaderComponent, ModalComponent],
+  imports: [CommonModule, FormsModule, BreadcrumbComponent, PageHeaderComponent, ModalComponent, MainBtn],
   templateUrl: './account.html',
   styleUrls: ['./account.scss']
 })
 export class AccountPage {
+  private ngZone = inject(NgZone);
+  private cdr = inject(ChangeDetectorRef);
+
   breadcrumbs = [
     { label: 'Home', path: '/dashboard' },
     { label: 'Account' }
@@ -27,6 +30,9 @@ export class AccountPage {
 
   activeTab = signal<Tab>('profile');
   deleteModalOpen = signal(false);
+  changeEmailModalOpen = signal(false);
+  changeEmailStep = signal<'enter-email' | 'verify-otp'>('enter-email');
+
   pwError = signal('');
   pwSuccess = signal(false);
   saving = signal(false);
@@ -36,7 +42,11 @@ export class AccountPage {
 
   profile = { firstName: 'Ahmed', lastName: 'Abdullah', username: 'user123', email: 'user@example.com', phone: '1012345678', countryCode: 'EG(+20)' };
   passwords = { current: '', newPw: '', confirm: '' };
-  countryCodes = ['EG(+20)', 'US(+1)', 'UK(+44)', 'AE(+971)', 'SA(+966)'];
+  changeEmailData = { email: '', otp: ['', '', '', '', '', ''] };
+  countryCodes = ['EG(+20)', 'US(+1)', 'UK(+44)', 'AE(+971)', 'SA Saudi Arabia(+966)'];
+
+  timer = signal(60);
+  private timerInterval: any;
 
   setTab(t: Tab) { this.activeTab.set(t); }
 
@@ -66,7 +76,85 @@ export class AccountPage {
   }
 
   changeEmail() {
-    console.log('Change email');
+    this.changeEmailStep.set('enter-email');
+    this.changeEmailData = { email: '', otp: ['', '', '', '', '', ''] };
+    this.changeEmailModalOpen.set(true);
+    this.stopTimer();
+  }
+
+  nextChangeEmailStep() {
+    if (this.changeEmailData.email) {
+      this.changeEmailStep.set('verify-otp');
+      this.startTimer();
+    }
+  }
+
+  startTimer() {
+    this.timer.set(60);
+    this.stopTimer();
+    
+    this.timerInterval = setInterval(() => {
+      this.ngZone.run(() => {
+        if (this.timer() > 0) {
+          this.timer.update(v => v - 1);
+          this.cdr.detectChanges();
+        } else {
+          this.stopTimer();
+        }
+      });
+    }, 1000);
+  }
+
+  stopTimer() {
+    if (this.timerInterval) {
+      clearInterval(this.timerInterval);
+      this.timerInterval = null;
+    }
+  }
+
+  closeEmailModal() {
+    this.changeEmailModalOpen.set(false);
+    this.stopTimer();
+  }
+
+  verifyEmailCode() {
+    console.log('Verifying code:', this.changeEmailData.otp.join(''));
+    this.closeEmailModal();
+    // Add success logic here if needed
+  }
+
+  editEmail() {
+    this.changeEmailStep.set('enter-email');
+  }
+
+  trackByFn(index: number) {
+    return index;
+  }
+
+  onOtpInput(event: Event, index: number) {
+    const input = event.target as HTMLInputElement;
+    let value = input.value;
+
+    value = value.replace(/[^0-9]/g, '');
+    input.value = value;
+
+    this.changeEmailData.otp[index] = value;
+
+    if (value && index < 5) {
+      const nextInput = input.nextElementSibling as HTMLInputElement;
+      if (nextInput) nextInput.focus();
+    }
+  }
+
+  onOtpKeydown(event: KeyboardEvent, index: number) {
+    const input = event.target as HTMLInputElement;
+    if (event.key === 'Backspace' && !input.value && index > 0) {
+      const prevInput = input.previousElementSibling as HTMLInputElement;
+      if (prevInput) {
+        prevInput.focus();
+        this.changeEmailData.otp[index - 1] = '';
+      }
+    }
   }
 
   logout() { console.log('Logout'); }
