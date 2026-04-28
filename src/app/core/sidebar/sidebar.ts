@@ -3,6 +3,10 @@ import { CommonModule } from '@angular/common';
 import { RouterModule, RouterLinkActive } from '@angular/router';
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser';
 import { MainTitle } from '../../shared/main-title/main-title';
+import { UsersService } from '../services/users.service';
+import { inject } from '@angular/core';
+import { TokenService } from '../services/token.service';
+import { Router } from '@angular/router';
 
 export interface NavItem {
   label: string;
@@ -28,6 +32,23 @@ export class SidebarComponent {
     email: 'user-email@example.com',
     avatar: null as string | null
   };
+
+  private readonly _usersService = inject(UsersService);
+  private readonly _tokenService = inject(TokenService);
+  private readonly _router = inject(Router);
+
+  ngOnInit() {
+    this._usersService.getProfile().subscribe({
+      next: (res: any) => {
+        this.user = {
+          firstName: res.user.firstName,
+          email: res.user.email,
+          avatar: res.user.profilePhoto
+        };
+      },
+      error: (err) => console.error('Error loading sidebar user profile:', err)
+    });
+  }
 
   constructor(private sanitizer: DomSanitizer) {
     this.navItems = [
@@ -66,7 +87,8 @@ export class SidebarComponent {
   }
 
   logout() {
-    console.log('Logout');
+    this._tokenService.removeToken();
+    this._router.navigate(['/auth/login']);
   }
 }
 

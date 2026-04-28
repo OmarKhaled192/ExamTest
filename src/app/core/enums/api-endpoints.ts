@@ -11,4 +11,10 @@ export class ApiEndPoints {
   static readonly EXAMS = this.build('exams');
   static readonly QUESTIONS = this.build('questions');
   static readonly SUBMISSIONS = this.build('submissions');
+  
+  static readonly USER_PROFILE = this.build('users/profile');
+  static readonly CHANGE_PASSWORD = this.build('users/change-password');
+  static readonly EMAIL_REQUEST = this.build('users/email/request');
+  static readonly EMAIL_CONFIRM = this.build('users/email/confirm');
+  static readonly DELETE_ACCOUNT = this.build('users/account');
 }

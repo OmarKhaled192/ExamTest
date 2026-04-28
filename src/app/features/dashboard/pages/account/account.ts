@@ -1,10 +1,14 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { BreadcrumbComponent } from '../../../../shared/breadcrumb/breadcrumb';
 import { PageHeaderComponent } from '../../../../shared/page-header/page-header';
 import { MainBtn } from '../../../../shared/main-btn/main-btn';
 import { ModalComponent } from '../../../../shared/modal/modal';
+import { UsersService } from '../../../../core/services/users.service';
+import { Router } from '@angular/router';
+import { User } from '../../../../core/models/user.model';
+import { TokenService } from '../../../../core/services/token.service';
 
 type Tab = 'profile' | 'password';
 
@@ -54,13 +58,67 @@ export class AccountPage {
   timer = signal(60);
   private timerInterval: any;
 
+  private readonly _usersService = inject(UsersService);
+  private readonly _router = inject(Router);
+  private readonly _tokenService = inject(TokenService);
+
+  ngOnInit() {
+    this.loadProfile();
+  }
+
+  loadProfile() {
+    this._usersService.getProfile().subscribe({
+      next: (res: any) => {
+        const countryCodeMatch = this.countryCodes.find(c => {
+          const code = c.split('(')[1].split(')')[0];
+          return res.user.phone.startsWith(code);
+        });
+
+        let phone = res.user.phone;
+        let countryCode = 'EG(+20)';
+        if (countryCodeMatch) {
+          countryCode = countryCodeMatch;
+          const code = countryCodeMatch.split('(')[1].split(')')[0];
+          phone = res.user.phone.replace(code, '');
+        }
+
+        this.profile = {
+          firstName: res.user.firstName,
+          lastName: res.user.lastName,
+          username: res.user.username,
+          email: res.user.email,
+          phone: phone,
+          countryCode: countryCode
+        };
+      },
+      error: (err) => console.error('Error loading profile:', err)
+    });
+  }
+
   setTab(t: Tab) {
     this.activeTab.set(t);
   }
 
   saveProfile() {
     this.saving.set(true);
-    setTimeout(() => this.saving.set(false), 1500);
+    const code = this.profile.countryCode.split('(')[1].split(')')[0];
+    const fullPhone = code + this.profile.phone;
+
+    this._usersService.updateProfile({
+      firstName: this.profile.firstName,
+      lastName: this.profile.lastName,
+      phone: fullPhone
+    }).subscribe({
+      next: (user) => {
+        this.saving.set(false);
+        this.pwSuccess.set(true); // Reuse success toast for profile update
+        setTimeout(() => this.pwSuccess.set(false), 3500);
+      },
+      error: (err) => {
+        this.saving.set(false);
+        console.error('Error updating profile:', err);
+      }
+    });
   }
 
   updatePassword() {
@@ -74,15 +132,31 @@ export class AccountPage {
     }
 
     this.pwError.set('');
-    this.pwSuccess.set(true);
-    this.passwords = { current: '', newPw: '', confirm: '' };
-
-    setTimeout(() => this.pwSuccess.set(false), 3500);
+    this._usersService.changePassword({
+      currentPassword: this.passwords.current,
+      newPassword: this.passwords.newPw,
+      confirmPassword: this.passwords.confirm
+    }).subscribe({
+      next: () => {
+        this.pwSuccess.set(true);
+        this.passwords = { current: '', newPw: '', confirm: '' };
+        setTimeout(() => this.pwSuccess.set(false), 3500);
+      },
+      error: (err) => {
+        this.pwError.set(err.error?.message || 'Error updating password.');
+      }
+    });
   }
 
   confirmDelete() {
-    this.deleteModalOpen.set(false);
-    console.log('Account deleted');
+    this._usersService.deleteAccount().subscribe({
+      next: () => {
+        this.deleteModalOpen.set(false);
+        this._tokenService.removeToken();
+        this._router.navigate(['/auth/login']);
+      },
+      error: (err) => console.error('Error deleting account:', err)
+    });
   }
 
   changeEmail() {
@@ -94,8 +168,13 @@ export class AccountPage {
 
   nextChangeEmailStep() {
     if (this.changeEmailData.email) {
-      this.changeEmailStep.set('verify-otp');
-      this.startTimer();
+      this._usersService.requestEmailChange({ newEmail: this.changeEmailData.email }).subscribe({
+        next: () => {
+          this.changeEmailStep.set('verify-otp');
+          this.startTimer();
+        },
+        error: (err) => console.error('Error requesting email change:', err)
+      });
     }
   }
 
@@ -125,8 +204,14 @@ export class AccountPage {
   }
 
   verifyEmailCode() {
-    console.log('Verifying code:', this.changeEmailData.otp.join(''));
-    this.closeEmailModal();
+    const code = this.changeEmailData.otp.join('');
+    this._usersService.confirmEmailChange({ code }).subscribe({
+      next: (res) => {
+        this.profile.email = res.user.email;
+        this.closeEmailModal();
+      },
+      error: (err) => console.error('Error confirming email change:', err)
+    });
   }
 
   editEmail() {
@@ -162,6 +247,7 @@ export class AccountPage {
   }
 
   logout() {
-    console.log('Logout');
+    this._tokenService.removeToken();
+    this._router.navigate(['/auth/login']);
   }
 }
