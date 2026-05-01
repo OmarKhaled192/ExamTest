@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
 import { ForgotLink } from '../../../shared/forgot-link/forgot-link';
-import { AuthModel, AuthService, LoginRes } from '../../../../../dist/auth';
+import { AuthModel, AuthService, LoginRes } from 'auth';
 import { TokenService } from '../../../core/services/token.service';
 
 @Component({
@@ -44,15 +44,15 @@ export class Login {
     }
 
     this.authService.login(this.loginForm.value).subscribe({
-      next: (res: any) => {
-        if (res.status == true) {
-          this.tokenService.setToken(res?.token);
+      next: (res: AuthModel) => {
+        if (res.token) {
+          this.tokenService.setToken(res.token);
           this.router.navigate(['/dashboard/diplomas']);
-        } else {
-          this.globalError = res?.error?.message || 'Something went wrong. Please try again.';
         }
       },
-
+      error: (err) => {
+        this.globalError = err?.error?.message || 'Something went wrong. Please try again.';
+      }
     });
   }
 }

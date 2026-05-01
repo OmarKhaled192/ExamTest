@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angular/forms';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
-import { AuthService } from '../../../../../dist/auth';
+import { AuthModel, AuthService } from 'auth';
 
 const OTP_DEADLINE_KEY = 'register_otp_deadline';
 const OTP_LENGTH = 6;
@@ -37,6 +37,17 @@ export class Register implements OnDestroy {
 
   @ViewChild('emailInput') emailInputRef!: ElementRef<HTMLInputElement>;
   @ViewChildren('otpInput') otpInputRefs!: QueryList<ElementRef<HTMLInputElement>>;
+
+  countryFlags: { [key: string]: string } = {
+    '+20': '🇪🇬',
+    '+1': '🇺🇸',
+    '+44': '🇬🇧',
+    '+91': '🇮🇳'
+  };
+
+  getSelectedFlag(): string {
+    return this.countryFlags[this.profileForm.value.selectedCountry || '+20'] || '🇪🇬';
+  }
 
   // ── Reactive Forms ──────────────────────────────────────────────
   emailForm = new FormGroup({
@@ -120,7 +131,7 @@ export class Register implements OnDestroy {
     };
 
     this.authService.register(payload).subscribe({
-      next: (res) => {
+      next: (res: AuthModel) => {
         console.log('Registered:', res);
         this.router.navigate(['/auth/login']);
       },

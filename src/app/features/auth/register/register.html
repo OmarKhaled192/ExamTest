@@ -77,6 +77,7 @@
       <div class="field-group">
         <label class="field-label">Phone</label>
         <div class="phone-wrapper">
+          <span class="phone-flag">{{ getSelectedFlag() }}</span>
           <select class="phone-select" formControlName="selectedCountry">
             <option value="+20">EG(+20)</option>
             <option value="+1">US(+1)</option>
@@ -114,7 +115,7 @@
         </div>
       </div>
 
-      <main-btn [color]="'primary'" [fullWidth]="true" [disabled]="passwordForm.invalid" (click)="onRegister()">Create Account</main-btn>
+      <main-btn [color]="'primary'" [fullWidth]="true" [disabled]="emailForm.invalid || profileForm.invalid || passwordForm.invalid" (click)="onRegister()">Create Account</main-btn>
     </form>
   </ng-container>
 

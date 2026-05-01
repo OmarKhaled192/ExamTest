@@ -13,7 +13,7 @@ import { CommonModule, Location } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
-import { AuthService } from '../../../../../dist/auth';
+import { ConfirmEmailVerificationRes, SendEmailVerificationRes, AuthService } from 'auth';
 
 @Component({
   selector: 'app-verify-otp',
@@ -99,7 +99,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
       email: this.email,
       code: code
     }).subscribe({
-      next: (res) => {
+      next: (res: ConfirmEmailVerificationRes) => {
         this.isLoading = false;
         this.successMessage = res.message || 'Verification successful';
 
@@ -120,7 +120,7 @@ export class VerifyOtp implements OnInit, OnDestroy {
     this.authService.sendEmailVerification({
       email: this.email
     }).subscribe({
-      next: (res) => {
+      next: (res: SendEmailVerificationRes) => {
         this.successMessage = res.message || 'Code resent successfully';
 
         this.countdown = 60;

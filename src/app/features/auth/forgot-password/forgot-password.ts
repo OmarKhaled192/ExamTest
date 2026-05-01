@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { Router } from '@angular/router';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
-import { AuthService } from '../../../../../dist/auth';
+import { ForgotPasswordRes, AuthService } from 'auth';
 
 @Component({
   selector: 'app-forgot-password',
@@ -29,9 +29,9 @@ export class ForgotPassword {
     this.authService.forgotPassword({
       email: this.form.controls.email.value as string
     }).subscribe({
-      next: (res) => {
+      next: (res: ForgotPasswordRes) => {
         this.loading = false;
-        this.router.navigate(['/verify-email'], {
+        this.router.navigate(['/auth/verify-email'], {
           queryParams: {
             email: this.form.controls.email.value,
             token: res.resetToken

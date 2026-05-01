@@ -4,7 +4,7 @@ import { ReactiveFormsModule, FormGroup, FormControl, Validators } from '@angula
 import { ActivatedRoute } from '@angular/router';
 import { MainBtn } from '../../../shared/main-btn/main-btn';
 import { QuestionLink } from '../../../shared/question-link/question-link';
-import { AuthService } from '../../../../../dist/auth';
+import { ResetPasswordRes, AuthService } from 'auth';
 
 @Component({
   selector: 'app-create-password',
@@ -63,7 +63,7 @@ export class CreatePassword implements OnInit {
       newPassword: password,
       confirmPassword: confirmPassword
     }).subscribe({
-      next: (res) => {
+      next: (res: ResetPasswordRes) => {
         this.isLoading = false;
         this.successMessage = res.message || 'Password reset successful';
       },

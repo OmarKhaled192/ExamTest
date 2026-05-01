@@ -14,7 +14,7 @@ export class AuthAdaptor implements Adaptor<RegisterRes | LoginRes, AuthModel> {
       status: res.status,
       token: res.payload.token,
       email: res.payload.user.email,
-      userData: res.payload.user as unknown as AuthModel['userData']
+      userData: res.payload.user
     }
   }
 }

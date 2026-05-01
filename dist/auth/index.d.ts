@@ -18,30 +18,6 @@ interface ForgotPasswordRes {
     resetToken: string;
 }
 
-interface LoginReq {
-    username: string;
-    password: string;
-}
-interface LoginRes {
-    status: boolean;
-    code: number;
-    message?: string;
-    payload: {
-        user: {
-            id: string;
-            username: string;
-            email: string;
-            phone: string;
-            firstName: string;
-            lastName: string;
-            emailVerified: boolean;
-            phoneVerified: boolean;
-            role: string;
-        };
-        token: string;
-    };
-}
-
 interface User {
     id: string;
     username: string;
@@ -54,6 +30,20 @@ interface User {
     role: string;
 }
 
+interface LoginReq {
+    username: string;
+    password: string;
+}
+interface LoginRes {
+    status: boolean;
+    code: number;
+    message?: string;
+    payload: {
+        user: User;
+        token: string;
+    };
+}
+
 interface RegisterReq {
     username: string;
     email: string;
@@ -62,6 +52,15 @@ interface RegisterReq {
     firstName: string;
     lastName: string;
     phone: string;
+}
+interface RegisterRes {
+    status: boolean;
+    code: number;
+    message?: string;
+    payload: {
+        user: User;
+        token: string;
+    };
 }
 
 interface ResetPasswordReq {
@@ -102,6 +101,7 @@ declare class AuthService implements AuthApi {
     private readonly _httpClient;
     private readonly _authAdaptor;
     private readonly _apiUrl;
+    private readonly _authPrefix;
     login(data: LoginReq): Observable<AuthModel>;
     register(data: RegisterReq): Observable<AuthModel>;
     sendEmailVerification(data: SendEmailVerificationReq): Observable<SendEmailVerificationRes>;
@@ -112,7 +112,17 @@ declare class AuthService implements AuthApi {
     static ɵprov: i0.ɵɵInjectableDeclaration<AuthService>;
 }
 
+interface Adaptor<T, U> {
+    adapt(data: T): U;
+}
+
+declare class AuthAdaptor implements Adaptor<RegisterRes | LoginRes, AuthModel> {
+    adapt(res: RegisterRes | LoginRes): AuthModel;
+    static ɵfac: i0.ɵɵFactoryDeclaration<AuthAdaptor, never>;
+    static ɵprov: i0.ɵɵInjectableDeclaration<AuthAdaptor>;
+}
+
 declare const API_URL: InjectionToken<string>;
 
-export { API_URL, AuthService };
-export type { AuthModel, LoginReq, LoginRes };
+export { API_URL, AuthAdaptor, AuthService };
+export type { AuthModel, ConfirmEmailVerificationReq, ConfirmEmailVerificationRes, ForgotPasswordReq, ForgotPasswordRes, LoginReq, LoginRes, RegisterReq, RegisterRes, ResetPasswordReq, ResetPasswordRes, SendEmailVerificationReq, SendEmailVerificationRes, User };
